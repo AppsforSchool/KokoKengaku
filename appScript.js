@@ -1,3 +1,4 @@
+/*
 const firebaseConfig = {
   apiKey: "AIzaSyAqIiNj0N4WruPSOkWbeo5gxzsNyeMkuLo",
     authDomain: "appsforschool-study.firebaseapp.com",
