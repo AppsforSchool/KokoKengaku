@@ -18,6 +18,8 @@ const app = window.app;
 const auth = window.auth;
 const db = window.db;
 
+let myUid;
+
 let drawerOverlay;
 let accountSettingsDrawer;
 let drawerCloseButton;
@@ -64,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
   auth.onAuthStateChanged(async (user) => {
    try {
     if (user) {
-      getAllTalkData();
+      
       
       const userId = user.email.split("@")[0]
       drawerUserId.textContent = userId;
@@ -73,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const userSnapshot = await db.collection("users_random").doc(userId).get();
       const userData = userSnapshot.data();
       drawerUsername.textContent = userData.name;
-      
+
+      myUid = userData.uid;
+      getAllTalkData();
     } else {
       console.log("logout");
     }
@@ -161,15 +165,19 @@ async function getAllTalkData() {
     
     // 各単元をループ処理
     for (const talkDoc of talkSnapshot.docs) {
+      const roomData = talkDoc.data();
+      const members = roomData.members || [];
       const talkButton = document.createElement("button");
-      talkButton.textContent = talkDoc.data().title;
+      talkButton.textContent = roomData.title;
       console.log(talkDoc.id);
       talkButton.addEventListener("click", () => {
         console.log(`./talk.html?id=${talkDoc.id}`);
         window.location.href = `./talk.html?id=${talkDoc.id}`;
       });
-      talkButtonArea.appendChild(talkButton);
-      
+      console.log(members.includes(myUid));
+      if (members.includes(myUid)) {
+        talkButtonArea.appendChild(talkButton);
+      }
     }
     talkButtonLoading.classList.add("hidden");
   talkButtonArea.classList.remove("hidden");
