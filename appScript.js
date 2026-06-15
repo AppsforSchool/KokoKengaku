@@ -124,11 +124,11 @@ const handleChangeUsername = async () => {
     usernameMessage.textContent = '';
   }
   try {
-    const user = window.auth.currentUser;
+    const user = auth.currentUser;
     if (!user) throw new Error("ユーザーがログインしていません。");
     // Firestoreの users/{UID} ドキュメントを更新
     const userId = user.email.split("@")[0];
-    await window.db.collection('users_random').doc(userId).set({
+    await db.collection('users_random').doc(userId).set({
     name: newUsername, // フィールド名も前のコードに合わせて 'name' にしています
   }, { merge: true });
 
