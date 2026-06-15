@@ -1,4 +1,4 @@
-/*
+
 const firebaseConfig = {
   apiKey: "AIzaSyAqIiNj0N4WruPSOkWbeo5gxzsNyeMkuLo",
     authDomain: "appsforschool-study.firebaseapp.com",
@@ -14,9 +14,9 @@ window.app = firebase.initializeApp(firebaseConfig);
 window.auth = firebase.auth();
 window.db = firebase.firestore();
 */
-const app = window.app;
-const auth = window.auth;
-const db = window.db;
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 let myUid;
 
