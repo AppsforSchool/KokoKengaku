@@ -13,6 +13,9 @@ window.app = firebase.initializeApp(firebaseConfig);
 window.auth = firebase.auth();
 window.db = firebase.firestore();
 */
+const app = window.app;
+const auth = window.auth;
+const db = window.db;
 
 let drawerOverlay;
 let accountSettingsDrawer;
