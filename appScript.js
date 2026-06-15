@@ -8,10 +8,11 @@ const firebaseConfig = {
 };
 
 // Firebase 初期化とサービス取得
+/*
 window.app = firebase.initializeApp(firebaseConfig);
 window.auth = firebase.auth();
 window.db = firebase.firestore();
-
+*/
 
 let drawerOverlay;
 let accountSettingsDrawer;
