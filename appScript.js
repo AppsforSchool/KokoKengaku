@@ -18,7 +18,8 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let myUid;
+let myUid = "";
+let myUserId = "";
 
 let drawerOverlay;
 let accountSettingsDrawer;
@@ -68,11 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (user) {
       
       
-      const userId = user.email.split("@")[0]
-      drawerUserId.textContent = userId;
+      myUserId = user.email.split("@")[0];
+      drawerUserId.textContent = myUserId;
       
       
-      const userSnapshot = await db.collection("users_random").doc(userId).get();
+      const userSnapshot = await db.collection("users_random").doc(myUserId).get();
       const userData = userSnapshot.data();
       drawerUsername.textContent = userData.name;
 
@@ -127,8 +128,7 @@ const handleChangeUsername = async () => {
     const user = auth.currentUser;
     if (!user) throw new Error("ユーザーがログインしていません。");
     // Firestoreの users/{UID} ドキュメントを更新
-    const userId = user.email.split("@")[0];
-    await db.collection('users_random').doc(userId).set({
+    await db.collection('users_random').doc(myUserId).set({
     name: newUsername, // フィールド名も前のコードに合わせて 'name' にしています
   }, { merge: true });
 
@@ -174,8 +174,8 @@ async function getAllTalkData() {
         console.log(`./talk.html?id=${talkDoc.id}`);
         window.location.href = `./talk.html?id=${talkDoc.id}`;
       });
-      console.log(members.includes(myUid));
-      if (members.includes(myUid)) {
+      console.log(members.includes(myUserId));
+      if (members.includes(myUserId)) {
         talkButtonArea.appendChild(talkButton);
       }
     }
