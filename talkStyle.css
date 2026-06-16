@@ -731,11 +731,26 @@ button, input, span {
   border-radius: 0.3rem;
   box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
 }
-
+#member-button {
+  font-weight: bold;
+  color: #808080;
+  text-decoration: underline;
+  margin: 0;
+}
+#member-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+#member-area p {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
 #head-area {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
+  align-items: center;
 }
 #talk-title {
   font-weight: bold;
