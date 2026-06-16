@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
       getAllTalkData();
     } else {
       console.log("logout");
+      window.location.href = "./index.html";
     }
    }
     catch (error) {
