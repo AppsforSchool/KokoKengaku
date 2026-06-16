@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
         drawerUsername.textContent = userData.name;
 
         myUid = userData.uid;
-        //const talkId = getParmFromUrl("id");
-        const talkId = "foGOSYbDcjxGpfi6gmfs";
+        const talkId = getParmFromUrl("id");
+        //const talkId = "foGOSYbDcjxGpfi6gmfs";
         //const talkId = "oMRei2rXPVKWCwqRfA5W";
         getAllTalkData(talkId);
       } else {
@@ -303,8 +303,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   messageAddButton.addEventListener("click", async () => {
-    //const talkId = getParmFromUrl("id");
-    const talkId = "foGOSYbDcjxGpfi6gmfs";
+    const talkId = getParmFromUrl("id");
+    //const talkId = "foGOSYbDcjxGpfi6gmfs";
     await addMessage(talkId);
   });
 });
