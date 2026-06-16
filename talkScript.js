@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         //const talkId = "foGOSYbDcjxGpfi6gmfs";
         //const talkId = "oMRei2rXPVKWCwqRfA5W";
         getAllTalkData(talkId);
+        getMember(talkId);
       } else {
         console.log("logout");
         window.location.href = "./index.html";
@@ -343,6 +344,42 @@ async function addMessage(talkId) {
   }
 };
 
+async function getMember(talkId) {
+  const memberArea = document.getElementById("member-area");
+  memberArea.innerHTML = "";
+  try {
+    const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
+    if (!roomSnapshot.exists) {
+      return;
+    }
+    
+    const roomData = roomSnapshot.data();
+    const memberUserIds = roomData.members || [];
+    
+    for (const userId of memberUserIds) {
+      
+      let memberName = "不明なユーザー";
+
+      // 3. 各userIdをドキュメントIDとして、users_random から名前を取得
+      const userSnapshot = await db.collection("users_random").doc(userId).get();
+      
+      if (userSnapshot.exists) {
+        const userData = userSnapshot.data();
+        memberName = userData.name || "名前未設定";
+      }
+
+      // 4. 画面にメンバー名を表示するHTML要素を作成
+      const memberElement = document.createElement("p");
+      memberElement.textContent = memberName; // 名前とuserIdを表示
+
+      // コンテナに追加（横並びにするなら span、縦並びにするなら div など）
+      memberArea.appendChild(memberElement);
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
 
 let shareModalBtn;
 let shareModal;
@@ -366,5 +403,21 @@ document.addEventListener("DOMContentLoaded", () => {
   
   toHomeButton.addEventListener("click", () => {
     window.location.href = "./app.html";
+  });
+});
+
+let memberButton;
+let memberModal;
+let memberModalClose;
+document.addEventListener("DOMContentLoaded", () => {
+  memberButton = document.getElementById("member-button");
+  memberModal = document.getElementById("member-modal");
+  memberModalClose = document.getElementById("member-modal-close");
+  
+  memberButton.addEventListener("click", () => {
+    memberModal.classList.remove("hidden");
+  });
+  memberModalClose.addEventListener("click", () => {
+    memberModal.classList.add("hidden");
   });
 });
