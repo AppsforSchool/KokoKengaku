@@ -337,7 +337,7 @@ async function addMessage(talkId) {
     console.log(error);
   }
   finally {
-    messageAddButton.disabled = false;
+    messageAddButton.disabled = true;
     messageAddButton.textContent = "送信";
     messageInput.value = "";
   }
