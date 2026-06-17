@@ -24,6 +24,9 @@ body {
 div, p {
   touch-action: manipulation;
 }
+a {
+  color: var(--primary);
+}
 /*
 button, input, span {
   -webkit-tap-highlight-color: transparent;
