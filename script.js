@@ -1,11 +1,11 @@
 // Firebase 設定
 const firebaseConfig = {
   apiKey: "AIzaSyAqIiNj0N4WruPSOkWbeo5gxzsNyeMkuLo",
-    authDomain: "appsforschool-study.firebaseapp.com",
-    projectId: "appsforschool-study",
-    storageBucket: "appsforschool-study.firebasestorage.app",
-    messagingSenderId: "740735293440",
-    appId: "1:740735293440:web:a1363adbab57f1ceec60e5"
+  authDomain: "appsforschool-study.firebaseapp.com",
+  projectId: "appsforschool-study",
+  storageBucket: "appsforschool-study.firebasestorage.app",
+  messagingSenderId: "740735293440",
+  appId: "1:740735293440:web:982702b6d53aaa18ec60e5"
 };
 
 // Firebase 初期化とサービス取得
