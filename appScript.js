@@ -189,3 +189,19 @@ async function getAllTalkData() {
   
 }
 
+
+let shareModalBtn;
+let shareModal;
+let shareModalClose;
+document.addEventListener("DOMContentLoaded", () => {
+  shareModalBtn = document.getElementById("share-modal-btn");
+  shareModal = document.getElementById("share-modal");
+  shareModalClose = document.getElementById("share-modal-close");
+  
+  shareModalBtn.addEventListener("click", () => {
+    shareModal.classList.remove("hidden");
+  });
+  shareModalClose.addEventListener("click", () => {
+    shareModal.classList.add("hidden");
+  });
+});
