@@ -211,8 +211,32 @@ async function getAllTalkData(talkId) {
             displayTime = formatDateTime(dateObject);
           }
 
+          const readByList = messageData.readBy || [];
+          //console.log(readByList);
+          if (messageData.userId !== myUserId && !readByList.includes(myUserId)) {
+            // Firestoreの配列に自分のuserIdを「追加（上書きではなく合流）」する
+            // ※ awaitをつけずに裏で非同期で実行させることで、画面の描画を邪魔しません
+            db.collection("KokoKengaku")
+              .doc(talkId)
+              .collection("talk")
+              .doc(talkDoc.id)
+              .update({
+                readBy: firebase.firestore.FieldValue.arrayUnion(myUserId)
+              })
+              .catch(err => console.error("既読更新エラー:", err));
+          }
+          
+          let displayReadCount = readByList.length;
+          const readSpan = document.createElement("span");
+          readSpan.textContent = `既読:${displayReadCount}人`;
+          readSpan.style.textDecoration = 'underline';
+          readSpan.addEventListener("click", () => {
+            openReadByModal(readByList);
+          });
+
           messageUser.textContent = `${senderName} ${displayTime}`;
           messageUser.classList.add("message-user");
+          messageUser.appendChild(readSpan);
           message.appendChild(messageUser);
 
           const messageText = document.createElement("p");
@@ -330,7 +354,9 @@ async function addMessage(talkId) {
       .collection("talk")
       .add({
         userId: myUserId,                                      // 送信者のuserId
-        message: message,                                     // メッセージ本文（改行データもそのまま入ります）
+        message: message,     
+        readBy: [],
+        // メッセージ本文（改行データもそのまま入ります）
         time: firebase.firestore.FieldValue.serverTimestamp() // サーバー時間（Timestamp型）
       });
   }
@@ -421,3 +447,44 @@ document.addEventListener("DOMContentLoaded", () => {
     memberModal.classList.add("hidden");
   });
 });
+
+let readModal;
+let readModalClose;
+let readArea;
+document.addEventListener("DOMContentLoaded", () => {
+  readModal = document.getElementById("read-modal");
+  readModalClose = document.getElementById("read-modal-close");
+  readArea = document.getElementById("read-area");
+  
+  readModalClose.addEventListener("click", () => {
+    readModal.classList.add("hidden");
+  });
+});
+
+async function openReadByModal(readByList) {
+  readArea.innerHTML = "読み込み中..."; // 一時表示
+  readModal.classList.remove("hidden");
+
+  const fragment = document.createDocumentFragment();
+
+  // 既読リスト（userIdの配列）をループして名前を取得
+  for (const userId of readByList) {
+    let name = "不明なユーザー";
+    
+    try {
+      const userSnapshot = await db.collection("users_random").doc(userId).get();
+      if (userSnapshot.exists) {
+        name = userSnapshot.data().name || "名前未設定";
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    const p = document.createElement("p");
+    p.textContent = name;
+    fragment.appendChild(p);
+  }
+
+  readArea.innerHTML = ""; // 読み込み中を消去
+  readArea.appendChild(fragment);
+}
