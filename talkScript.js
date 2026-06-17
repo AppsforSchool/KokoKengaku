@@ -241,8 +241,9 @@ async function getAllTalkData(talkId) {
           message.appendChild(messageUser);
 
           const messageText = document.createElement("p");
-          messageText.textContent = messageData.message;
           messageText.classList.add("message-text");
+          const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
+          messageText.appendChild(safeContent);
           message.appendChild(messageText);
 
           newTalk.appendChild(message);
@@ -252,54 +253,55 @@ async function getAllTalkData(talkId) {
         talkArea.appendChild(newTalk);
       
         talkArea.scrollTop = talkArea.scrollHeight;
-      
-        //talkLoading.classList.add("hidden");
-        //talkArea.classList.remove("hidden");
       });
-
-    // 各単元をループ処理
-    /*for (const talkDoc of messageSnapshot.docs) {
-      const messageData = talkDoc.data();
-      console.log(talkDoc.id);
-      console.log(messageData.message);
-      
-      const message = document.createElement("div");
-      message.classList.add("message");
-      
-      const messageUser = document.createElement("p");
-      
-      const messageUserId = messageData.userId; 
-      let senderName = "不明なユーザー";
-      if (messageUserId) {
-        const userSnapshot = await db.collection("users_random").doc(messageUserId).get();
-        if (userSnapshot.exists) {
-          const userData = userSnapshot.data();
-          senderName = userData.name || "名前未設定";
-        }
-      }
-      
-      let displayTime = "時間不明";
-      if (messageData.time) {
-        const dateObject = messageData.time.toDate();
-        displayTime = formatDateTime(dateObject);
-      }
-      
-      messageUser.textContent = `${senderName} ${displayTime}`;
-      messageUser.classList.add("message-user");
-      message.appendChild(messageUser);
-      
-      const messageText = document.createElement("p");
-      messageText.textContent = messageData.message;
-      messageText.classList.add("message-text");
-      message.appendChild(messageText);
-      
-      talkArea.appendChild(message);
-    }*/
-    
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
   }
+}
+
+function sanitizeHtmlToOnlyLinks(htmlString) {
+  // 1. ブラウザの機能を使って、文字列を一時的にHTMLドキュメントとして解析する
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  
+  // 結果を格納するための空のドキュメントフラグメント（箱）を作る
+  const box = document.createDocumentFragment();
+
+  // 2. 解析したデータの中身（ノード）を1つずつチェックしていく
+  // doc.body.childNodes には、文字や各タグが順番に入っています
+  const childNodes = Array.from(doc.body.childNodes);
+
+  childNodes.forEach(node => {
+    // もしその要素が「普通の文字（テキストノード）」ならそのままコピー
+    if (node.nodeType === Node.TEXT_NODE) {
+      box.appendChild(document.createTextNode(node.textContent));
+    } 
+    // もしその要素が「タグ（エレメントノード）」で、かつ「Aタグ」の場合だけ許可
+    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
+      const safeLink = document.createElement('a');
+      
+      // 表面上のテキストをコピー
+      safeLink.textContent = node.textContent;
+      
+      // href属性（リンク先）があればコピー、なければ '#' に
+      const rawHref = node.getAttribute('href') || '#';
+      safeLink.setAttribute('href', rawHref);
+      
+      // iPadの別タブで開く安全設定を強制付与
+      safeLink.setAttribute('target', '_blank');
+      safeLink.setAttribute('rel', 'noopener noreferrer');
+      safeLink.classList.add('chat-link'); // 先ほどのCSS用クラス
+
+      box.appendChild(safeLink);
+    }
+    // <a> 以外のタグ（<script> や <div> など）は、中身のテキストだけを抜き出してただの文字にする
+    else if (node.nodeType === Node.ELEMENT_NODE) {
+      box.appendChild(document.createTextNode(node.textContent));
+    }
+  });
+
+  return box;
 }
 
 function getParmFromUrl(parm) {
