@@ -773,6 +773,11 @@ button, input, span {
   flex-direction: column;
   text-align: left;
   width: 80%;
+
+  margin-bottom: 16px;
+}
+.message:last-child {
+  margin-bottom: 0;
 }
 .message .message-user {
   font-weight: bold;
