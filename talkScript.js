@@ -12,6 +12,7 @@ const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+let myUserId = "";
 let myUid = "";
 
 let drawerOverlay;
@@ -59,12 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
   auth.onAuthStateChanged(async (user) => {
     try {
       if (user) {
-        const userId = user.email.split("@")[0];
-        drawerUserId.textContent = userId;
+        myUserId = user.email.split("@")[0];
+        drawerUserId.textContent = myUserId;
 
         const userSnapshot = await db
           .collection("users_random")
-          .doc(userId)
+          .doc(myUserId)
           .get();
         const userData = userSnapshot.data();
         drawerUsername.textContent = userData.name;
@@ -234,7 +235,7 @@ async function getAllTalkData(talkId) {
             openReadByModal(readByList);
           });
 
-          messageUser.textContent = `${senderName} ${displayTime}`;
+          messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
           messageUser.appendChild(readSpan);
           message.appendChild(messageUser);
