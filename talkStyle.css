@@ -789,6 +789,7 @@ button, input, span {
   font-weight: bold;
   
   white-space: pre-wrap;
+  line-height: 1.2;
 }
 .message .message-read {
   font-size: 0.9rem;
