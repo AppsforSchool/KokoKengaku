@@ -775,7 +775,7 @@ button, input, span {
   display: flex;
   flex-direction: column;
   text-align: left;
-  width: 80%;
+  width: 100%;
 
   margin-bottom: 16px;
 }
