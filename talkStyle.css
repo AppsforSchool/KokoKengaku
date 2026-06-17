@@ -737,12 +737,14 @@ button, input, span {
   text-decoration: underline;
   margin: 0;
 }
-#member-area {
+#member-area,
+#read-area {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-#member-area p {
+#member-area p,
+#read-area p {
   font-weight: bold;
   font-size: 1.1rem;
 }
