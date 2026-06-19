@@ -161,26 +161,49 @@ async function getAllTalkData() {
   const talkButtonLoading = document.getElementById("talk-button-loading");
   
   try {
+    const userSnapshot = await db.collection("users_random").doc(myUserId).get();
+    const userData = userSnapshot.data() || {};
+    const lastCheckedMap = userData.lastChecked || {};
+    
     const talkSnapshot = await db.collection("KokoKengaku").get();
     
     // 各単元をループ処理
     for (const talkDoc of talkSnapshot.docs) {
       const roomData = talkDoc.data();
       const members = roomData.members || [];
-      const talkButton = document.createElement("button");
-      talkButton.textContent = roomData.title;
-      console.log(talkDoc.id);
+
+      const talkButton = document.createElement("div");
+      talkButton.classList.add("talk-button");
       talkButton.addEventListener("click", () => {
         console.log(`./talk.html?id=${talkDoc.id}`);
         window.location.href = `./talk.html?id=${talkDoc.id}`;
       });
-      console.log(members.includes(myUserId));
-      if (members.includes(myUserId)) {
-        talkButtonArea.appendChild(talkButton);
-      }
+      const titleArea = document.createElement("p");
+      titleArea.classList.add("title");
+      titleArea.textContent = roomData.title;
+      
+      
+      const lastCheckedTime = lastCheckedMap[talkDoc.id] ? lastCheckedMap[talkDoc.id].toDate() : new Date(0);
+
+      const unreadSnapshot = await db.collection("KokoKengaku")
+        .doc(talkDoc.id)
+        .collection("talk")
+        .where("time", ">", lastCheckedTime) // 最後に見た時間より新しいもの
+        .get();
+
+      const unreadCount = unreadSnapshot.size;
+      
+      
+      const newMessageArea = document.createElement("p");
+      newMessageArea.classList.add("new-message");
+      newMessageArea.textContent = `新着: ${unreadCount}件`;
+      
+      talkButton.appendChild(titleArea);
+      talkButton.appendChild(newMessageArea);
+      talkButtonArea.appendChild(talkButton);
     }
     talkButtonLoading.classList.add("hidden");
-  talkButtonArea.classList.remove("hidden");
+    talkButtonArea.classList.remove("hidden");
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
