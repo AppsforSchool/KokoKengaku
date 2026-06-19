@@ -172,7 +172,7 @@ async function getAllTalkData() {
       const roomData = talkDoc.data();
       const members = roomData.members || [];
 
-      if (members.includes(myUserId)) {
+      if (!members.includes(myUserId)) {
         continue;
       }
       
