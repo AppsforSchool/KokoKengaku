@@ -706,6 +706,24 @@ button, input, span {
   box-shadow: none;
 }
 
+.talk-button {
+  display: flex;
+  //text-align: left;
+  border-bottom: 1px solid #ccc;
+  
+  padding: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+.talk-button .title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.talk-button .new-message {
+  color: var(--primary);
+  font-weight: bold;
+}
+
 footer {
   background-color: #333;
   color: white;
