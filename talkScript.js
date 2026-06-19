@@ -1,4 +1,4 @@
-//alert("test");
+alert("現在メンテナンス中のため､正常に作動しません｡");
 
 // 1. 共通設定ファイルから、初期化済みのインスタンスをインポート
 import { auth, db } from "./firebase-config.js";
@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
         drawerUserId.textContent = myUserId;
 
         // v10形式のデータ取得
+        /*
         const userDocRef = doc(db, "users_random", myUserId);
         const userSnapshot = await getDoc(userDocRef);
         const userData = userSnapshot.data() || {};
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         getAllTalkData(talkId);
         getMember(talkId);
+        */
       } else {
         console.log("logout");
         window.location.href = "./index.html";
