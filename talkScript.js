@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
         drawerUserId.textContent = myUserId;
 
         // v10形式のデータ取得
-        /*
+        
         const userDocRef = doc(db, "users_random", myUserId);
         const userSnapshot = await getDoc(userDocRef);
         const userData = userSnapshot.data() || {};
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         userCache[myUserId] = userData.name || "未設定";
 
         const talkId = getParmFromUrl("id");
-        
+        /*
         getAllTalkData(talkId);
         getMember(talkId);
         */
