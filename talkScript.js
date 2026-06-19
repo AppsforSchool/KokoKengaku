@@ -1,4 +1,4 @@
-alert("test");
+//alert("test");
 
 // 1. 共通設定ファイルから、初期化済みのインスタンスをインポート
 import { auth, db } from "./firebase-config.js";
