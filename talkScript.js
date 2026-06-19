@@ -1,4 +1,4 @@
-alert("現在メンテナンス中のため､正常に作動しません｡");
+alert("現在メンテナンス中のため､正常に作動しません｡ (testId=2)");
 
 // 1. 共通設定ファイルから、初期化済みのインスタンスをインポート
 import { auth, db } from "./firebase-config.js";
@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // v10形式のデータ取得
         
         const userDocRef = doc(db, "users_random", myUserId);
+        alert("userDocRef");
         const userSnapshot = await getDoc(userDocRef);
         const userData = userSnapshot.data() || {};
         drawerUsername.textContent = userData.name || "未設定";
