@@ -1,4 +1,4 @@
-alert("test");
+//alert("test");
 
 // 共通設定からインポート
 import { auth, db } from "./firebase-config.js";
