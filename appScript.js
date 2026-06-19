@@ -200,7 +200,9 @@ async function getAllTalkData() {
       
       talkButton.appendChild(titleArea);
       talkButton.appendChild(newMessageArea);
-      talkButtonArea.appendChild(talkButton);
+      if (members.includes(myUserId)) {
+        talkButtonArea.appendChild(talkButton);
+      }
     }
     talkButtonLoading.classList.add("hidden");
     talkButtonArea.classList.remove("hidden");
