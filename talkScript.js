@@ -253,8 +253,10 @@ async function getAllTalkData(talkId) {
         talkArea.appendChild(newTalk);
       
         talkArea.scrollTop = talkArea.scrollHeight;
+
+        updateLastCheckedTime(talkId, myUserId);
       });
-    updateLastCheckedTime(talkId, myUserId);
+    
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
