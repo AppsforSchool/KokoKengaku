@@ -172,6 +172,10 @@ async function getAllTalkData() {
       const roomData = talkDoc.data();
       const members = roomData.members || [];
 
+      if (members.includes(myUserId)) {
+        continue;
+      }
+      
       const talkButton = document.createElement("div");
       talkButton.classList.add("talk-button");
       talkButton.addEventListener("click", () => {
@@ -200,12 +204,11 @@ async function getAllTalkData() {
       
       talkButton.appendChild(titleArea);
       talkButton.appendChild(newMessageArea);
-      if (members.includes(myUserId)) {
-        talkButtonArea.appendChild(talkButton);
-      }
+      
     }
     talkButtonLoading.classList.add("hidden");
     talkButtonArea.classList.remove("hidden");
+    talkButtonArea.appendChild(talkButton);
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
