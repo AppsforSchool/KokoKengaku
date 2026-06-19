@@ -254,6 +254,7 @@ async function getAllTalkData(talkId) {
       
         talkArea.scrollTop = talkArea.scrollHeight;
       });
+    updateLastCheckedTime(talkId, myUserId);
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
@@ -407,6 +408,20 @@ async function getMember(talkId) {
   }
   catch (error) {
     console.log(error);
+  }
+}
+
+async function updateLastCheckedTime(talkId, myUserId) {
+  try {
+    await db.collection("users_random").doc(myUserId).set({
+      // lastChecked というオブジェクトの中に、ルームIDをキーにして時間を保存
+      lastChecked: {
+        [talkId]: firebase.firestore.FieldValue.serverTimestamp()
+      }
+    }, { merge: true }); // 他のデータを消さないようにマージ
+    console.log(`${talkId} の最終確認時刻を更新しました`);
+  } catch (error) {
+    console.error("最終確認時刻の更新に失敗:", error);
   }
 }
 
