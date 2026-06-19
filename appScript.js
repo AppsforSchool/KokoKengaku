@@ -1,7 +1,7 @@
-// 1. 共通設定ファイルから、初期化済みのインスタンスをインポート
+// 共通設定からインポート
 import { auth, db } from "./firebase-config.js";
 
-// 2. このページで使う Firestore / Auth の関数だけをURLからインポート
+// 各機能の関数をv10のURLからインポート
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc, setDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -51,14 +51,13 @@ function closeDrawer() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 💡 共通ファイルの auth を使って監視
   onAuthStateChanged(auth, async (user) => {
     try {
       if (user) {
         myUserId = user.email.split("@")[0];
         drawerUserId.textContent = myUserId;
         
-        // 💡 v10形式のデータ取得（共通ファイルの db を使用）
+        // 1️⃣ ここで一度だけユーザー情報を取得（通信の無駄をカット）
         const userDocRef = doc(db, "users_random", myUserId);
         const userSnapshot = await getDoc(userDocRef);
         const userData = userSnapshot.data() || {};
@@ -66,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         myUid = userData.uid;
         
-        // 取得済みのデータを引き渡して無駄な再通信をカット
+        // 💡 取得した userData をそのまま次の関数に引き渡す
         getAllTalkData(userData);
       } else {
         console.log("logout");
@@ -142,16 +141,17 @@ async function getAllTalkData(userData) {
   try {
     const lastCheckedMap = userData.lastChecked || {};
     
+    // 全トークルーム一覧を取得
     const talkCollectionRef = collection(db, "KokoKengaku");
     const talkSnapshot = await getDocs(talkCollectionRef);
     
-    // 自分がメンバーになっている部屋だけに絞り込み
+    // 自分がメンバーになっている部屋だけに瞬時に絞り込み
     const myRooms = talkSnapshot.docs.filter(docSnapshot => {
       const members = docSnapshot.data().members || [];
       return members.includes(myUserId);
     });
 
-    // 各部屋の未読取得の通信を「同時に一斉スタート」させる
+    // 2️⃣ 【最重要】各部屋の未読取得の通信を「同時に一斉スタート」させる
     const unreadPromises = myRooms.map(async (talkDoc) => {
       const lastCheckedTime = lastCheckedMap[talkDoc.id] ? lastCheckedMap[talkDoc.id].toDate() : new Date(0);
       
@@ -166,7 +166,7 @@ async function getAllTalkData(userData) {
       };
     });
 
-    // 全ての通信が終わるのを一括で待つ（劇的に速くなります）
+    // ここで全ての通信が終わるのを一括で待つ（順番待ちが消えるため、劇的に速くなります）
     const roomResults = await Promise.all(unreadPromises);
 
     roomResults.forEach((result) => {
