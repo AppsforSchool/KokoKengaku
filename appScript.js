@@ -167,6 +167,9 @@ async function getAllTalkData() {
     
     const talkSnapshot = await db.collection("KokoKengaku").get();
     
+    // 【修正ポイント1】HTML要素を一時的に溜めるための「フラグメント（仮の箱）」を作成
+    const fragment = document.createDocumentFragment();
+    
     // 各単元をループ処理
     for (const talkDoc of talkSnapshot.docs) {
       const roomData = talkDoc.data();
@@ -186,17 +189,15 @@ async function getAllTalkData() {
       titleArea.classList.add("title");
       titleArea.textContent = roomData.title;
       
-      
       const lastCheckedTime = lastCheckedMap[talkDoc.id] ? lastCheckedMap[talkDoc.id].toDate() : new Date(0);
 
       const unreadSnapshot = await db.collection("KokoKengaku")
         .doc(talkDoc.id)
         .collection("talk")
-        .where("time", ">", lastCheckedTime) // 最後に見た時間より新しいもの
+        .where("time", ">", lastCheckedTime)
         .get();
 
       const unreadCount = unreadSnapshot.size;
-      
       
       const newMessageArea = document.createElement("p");
       newMessageArea.classList.add("new-message");
@@ -204,15 +205,22 @@ async function getAllTalkData() {
       
       talkButton.appendChild(titleArea);
       talkButton.appendChild(newMessageArea);
-      talkButtonArea.appendChild(talkButton);
+      
+      // 【修正ポイント2】直接画面に追加せず、仮の箱（fragment）に追加する
+      fragment.appendChild(talkButton);
     }
+    
+    // 【修正ポイント3】ループが全部終わったら、一気に画面に追加する
+    talkButtonArea.appendChild(fragment);
+
+    // ローディングを消して、ボタンエリアを表示
     talkButtonLoading.classList.add("hidden");
     talkButtonArea.classList.remove("hidden");
+    
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
   }
-  
 }
 
 
