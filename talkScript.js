@@ -166,7 +166,9 @@ async function getAllTalkData(talkId) {
     const roomData = roomSnapshot.data();
     talkTitle.textContent = roomData.title;
 
-    
+    db.collection("users_random").doc(myUserId).update({
+      [`unreadCounts.${talkId}`]: 0
+    }).catch(err => console.error("未読リセットエラー:", err));
     
 
     db.collection("KokoKengaku")
