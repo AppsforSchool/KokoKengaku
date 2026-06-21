@@ -165,32 +165,30 @@ async function getAllTalkData() {
     const userData = userSnapshot.data() || {};
     const lastCheckedMap = userData.lastChecked || {};
     
-    const talkSnapshot = await db.collection("KokoKengaku").get();
+    // 【改善点】自分が含まれるルームだけをピンポイントで取得する
+    const talkSnapshot = await db.collection("KokoKengaku")
+      .where("members", "array-contains", myUserId)
+      .get();
     
-    // 【修正ポイント1】HTML要素を一時的に溜めるための「フラグメント（仮の箱）」を作成
     const fragment = document.createDocumentFragment();
     
-    // 各単元をループ処理
-    for (const talkDoc of talkSnapshot.docs) {
+    // ループ内の非同期処理（未読数カウント）を並列で実行するための準備
+    const promises = talkSnapshot.docs.map(async (talkDoc) => {
       const roomData = talkDoc.data();
-      const members = roomData.members || [];
-
-      if (!members.includes(myUserId)) {
-        continue;
-      }
       
       const talkButton = document.createElement("div");
       talkButton.classList.add("talk-button");
       talkButton.addEventListener("click", () => {
-        console.log(`./talk.html?id=${talkDoc.id}`);
         window.location.href = `./talk.html?id=${talkDoc.id}`;
       });
+
       const titleArea = document.createElement("p");
       titleArea.classList.add("title");
       titleArea.textContent = roomData.title;
       
       const lastCheckedTime = lastCheckedMap[talkDoc.id] ? lastCheckedMap[talkDoc.id].toDate() : new Date(0);
 
+      // 未読数の取得
       const unreadSnapshot = await db.collection("KokoKengaku")
         .doc(talkDoc.id)
         .collection("talk")
@@ -206,14 +204,16 @@ async function getAllTalkData() {
       talkButton.appendChild(titleArea);
       talkButton.appendChild(newMessageArea);
       
-      // 【修正ポイント2】直接画面に追加せず、仮の箱（fragment）に追加する
-      fragment.appendChild(talkButton);
-    }
+      return talkButton;
+    });
+
+    // 【改善点】すべてのルームの未読チェックを「同時に（並列で）」行う
+    const talkButtons = await Promise.all(promises);
     
-    // 【修正ポイント3】ループが全部終わったら、一気に画面に追加する
+    // 出来上がったボタンを一括で画面に追加
+    talkButtons.forEach(button => fragment.appendChild(button));
     talkButtonArea.appendChild(fragment);
 
-    // ローディングを消して、ボタンエリアを表示
     talkButtonLoading.classList.add("hidden");
     talkButtonArea.classList.remove("hidden");
     
