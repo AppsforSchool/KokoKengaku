@@ -210,6 +210,7 @@ async function getAllTalkData(talkId) {
                 const userData = userSnapshot.data();
                 senderName = userData.name || "名前未設定";
                 userCache[messageUserId] = senderName; // キャッシュに保存
+                alert("cached");
               }
             }
           }
