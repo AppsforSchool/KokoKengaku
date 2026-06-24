@@ -14,6 +14,7 @@ const db = firebase.firestore();
 
 let myUserId = "";
 let myUid = "";
+let userCache = {};
 
 let drawerOverlay;
 let accountSettingsDrawer;
@@ -198,13 +199,18 @@ async function getAllTalkData(talkId) {
           const messageUserId = messageData.userId;
           let senderName = "不明なユーザー";
           if (messageUserId) {
-            const userSnapshot = await db
-              .collection("users_random")
-              .doc(messageUserId)
-              .get();
-            if (userSnapshot.exists) {
-              const userData = userSnapshot.data();
-              senderName = userData.name || "名前未設定";
+            if (userCache[messageUserId]) {
+              senderName = userCache[messageUserId];
+            } else {
+              const userSnapshot = await db
+                .collection("users_random")
+                .doc(messageUserId)
+                .get();
+              if (userSnapshot.exists) {
+                const userData = userSnapshot.data();
+                senderName = userData.name || "名前未設定";
+                userCache[messageUserId] = senderName; // キャッシュに保存
+              }
             }
           }
 
