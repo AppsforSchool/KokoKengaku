@@ -184,6 +184,9 @@ async function getAllTalkData(userData) {
       
       const newMessageArea = document.createElement("p");
       newMessageArea.classList.add("new-message");
+      if (result.unreadCount === 0) {
+        newMessageArea.classList.add("no-message");
+      }
       newMessageArea.textContent = `新着: ${result.unreadCount}件`;
       
       talkButton.appendChild(titleArea);
