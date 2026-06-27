@@ -200,7 +200,7 @@ async function getAllTalkData() {
       const newMessageArea = document.createElement("p");
       newMessageArea.classList.add("new-message");
       if (unreadCount === 0) {
-        newMessageAre.classList.add("no-message");
+        newMessageArea.classList.add("no-message");
       }
       newMessageArea.textContent = `新着: ${unreadCount}件`;
       
