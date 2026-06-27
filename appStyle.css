@@ -723,6 +723,9 @@ button, input, span {
   color: var(--primary);
   font-weight: bold;
 }
+.talk-button .new-message.no-message {
+  color: #000;
+}
 
 footer {
   background-color: #333;
