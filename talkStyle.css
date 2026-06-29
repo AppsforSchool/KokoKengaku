@@ -787,7 +787,7 @@ button, input, span {
   font-size: 0.9rem;
   color: #808080;
 }
-.medsage .message-user.admin {
+.message .message-user.admin {
   font-weight: bold;
   
   background: linear-gradient(
