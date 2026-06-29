@@ -787,6 +787,32 @@ button, input, span {
   font-size: 0.9rem;
   color: #808080;
 }
+.medsage .message-user.admin {
+  font-weight: bold;
+  
+  background: linear-gradient(
+    90deg,
+    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
+  );
+  background-size: 200% auto;
+  
+  -webkit-background-clip: text;
+  background-clip: text;
+  
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  
+  animation: wave 3s linear infinite;
+}
+@keyframes wave {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .message .message-text {
   font-size: 1.1rem;
   font-weight: bold;
