@@ -198,6 +198,7 @@ async function getAllTalkData(talkId) {
 
           const messageUserId = messageData.userId;
           let senderName = "不明なユーザー";
+          let isAdmin = false;
           if (messageUserId) {
             if (userCache[messageUserId]) {
               senderName = userCache[messageUserId];
@@ -213,6 +214,15 @@ async function getAllTalkData(talkId) {
                 // alert("cached");
               }
             }
+
+            const userSnapshot = await db
+                .collection("users_random")
+                .doc(messageUserId)
+                .get();
+              if (userSnapshot.exists) {
+                const userData = userSnapshot.data();
+                isAdmin = userData.isAdmin;
+              }
           }
 
           let displayTime = "時間不明";
@@ -246,6 +256,9 @@ async function getAllTalkData(talkId) {
 
           messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
+          if (isAdmin) {
+            messageUser.classList.add("admin");
+          }
           messageUser.appendChild(readSpan);
           message.appendChild(messageUser);
 
