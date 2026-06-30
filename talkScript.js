@@ -535,12 +535,28 @@ async function openReadByModal(readByList) {
 
   // 既読リスト（userIdの配列）をループして名前を取得
   for (const userId of readByList) {
-    let name = "不明なユーザー";
-    
     try {
-      const userSnapshot = await db.collection("users_random").doc(userId).get();
-      if (userSnapshot.exists) {
-        name = userSnapshot.data().name || "名前未設定";
+      let name = "不明なユーザー";
+      let isAdmin = false;
+
+      if (userCache[userId]) {
+        name = userCache[userId];
+      } else {
+        const userSnapshot = await db.collection("users_random").doc(userId).get();
+        if (userSnapshot.exists) {
+          name = userSnapshot.data().name || "名前未設定";
+          userCache[userId] = name;
+        }
+      }
+
+      if (userAdminCache[userId]) {
+        isAdmin = userAdminCache[userId];
+      } else {
+        const userSnapshot = await db.collection("users_random").doc(userId).get();
+        if (userSnapshot.exists) {
+         isAdmin = userSnapshot.data().isAdmin || false;
+          userCache[userId] = isAdmin;
+        }
       }
     } catch (e) {
       console.error(e);
@@ -548,6 +564,7 @@ async function openReadByModal(readByList) {
 
     const p = document.createElement("p");
     p.textContent = name;
+    if (isAdmin) p.classList.add("admin");
     fragment.appendChild(p);
   }
 
