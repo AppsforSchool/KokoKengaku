@@ -15,6 +15,7 @@ const db = firebase.firestore();
 let myUserId = "";
 let myUid = "";
 let userCache = {};
+let userAdminCache = {};
 
 let drawerOverlay;
 let accountSettingsDrawer;
@@ -70,11 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
           .get();
         const userData = userSnapshot.data();
         drawerUsername.textContent = userData.name;
+        if (userData.isAdmin) drawerUsername.classList.add("admin");
+        userCache[myUserId] = userData.name;
+        userAdminCache[myUserId] = userData.isAdmin;
 
         myUid = userData.uid;
         const talkId = getParmFromUrl("id");
-        //const talkId = "foGOSYbDcjxGpfi6gmfs";
-        //const talkId = "oMRei2rXPVKWCwqRfA5W";
         getAllTalkData(talkId);
         getMember(talkId);
       } else {
@@ -140,6 +142,8 @@ const handleChangeUsername = async () => {
     drawerUsername.textContent = newUsername; // 表示を更新
     newUsernameInput.value = ""; // 入力フィールドをクリア
     changeUsernameButton.disabled = true;
+
+    userCache[userId] = newUsername;
 
     // ヘッダーのアカウント設定ボタンの表示も更新
     //if (headerUsername) headerUsername.textContent = newUsername;
@@ -214,15 +218,20 @@ async function getAllTalkData(talkId) {
                 // alert("cached");
               }
             }
-
-            const userSnapshot = await db
+            if (userAdminCache[messageUserId]) {
+              isAdmin = userAdminCache[messageUserId];
+            } else {
+              const userSnapshot = await db
                 .collection("users_random")
                 .doc(messageUserId)
                 .get();
               if (userSnapshot.exists) {
                 const userData = userSnapshot.data();
-                isAdmin = userData.isAdmin;
+                isAdmin = userData.isAdmin || false;
+                userAdminCache[messageUserId] = isAdmin; // キャッシュに保存
+                // alert("cached");
               }
+            }
           }
 
           let displayTime = "時間不明";
