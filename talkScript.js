@@ -204,34 +204,25 @@ async function getAllTalkData(talkId) {
           let senderName = "不明なユーザー";
           let isAdmin = false;
           if (messageUserId) {
-            if (userCache[messageUserId]) {
-              senderName = userCache[messageUserId];
-            } else {
-              const userSnapshot = await db
-                .collection("users_random")
-                .doc(messageUserId)
-                .get();
+            if (!(messageUserId in userCache) || !(messageUserId in userAdminCache)) {
+              // Firestoreへのアクセスは「1回だけ」
+              const userSnapshot = await db.collection("users_random").doc(messageUserId).get();
+    
               if (userSnapshot.exists) {
                 const userData = userSnapshot.data();
-                senderName = userData.name || "名前未設定";
-                userCache[messageUserId] = senderName; // キャッシュに保存
-                // alert("cached");
+      
+                // 1回の通信で、両方のキャッシュを同時に保存する！
+                userCache[messageUserId] = userData.name || "名前未設定";
+                userAdminCache[messageUserId] = userData.isAdmin || false;
+              } else {
+                // ドキュメントが存在しなかった場合のセーフティ
+                userCache[messageUserId] = "不明なユーザー";
+                userAdminCache[messageUserId] = false;
               }
             }
-            if (userAdminCache[messageUserId]) {
-              isAdmin = userAdminCache[messageUserId];
-            } else {
-              const userSnapshot = await db
-                .collection("users_random")
-                .doc(messageUserId)
-                .get();
-              if (userSnapshot.exists) {
-                const userData = userSnapshot.data();
-                isAdmin = userData.isAdmin || false;
-                userAdminCache[messageUserId] = isAdmin; // キャッシュに保存
-                // alert("cached");
-              }
-            }
+            
+            senderName = userCache[messageUserId];
+            isAdmin = userAdminCache[messageUserId];
           }
 
           let displayTime = "時間不明";
@@ -424,26 +415,25 @@ async function getMember(talkId) {
       let memberName = "不明なユーザー";
       let isAdmin = false;
 
-      // 3. 各userIdをドキュメントIDとして、users_random から名前を取得
-      if (userCache[userId]) {
-        memberName = userCache[userId];
-      } else {
+      if (!(userId in userCache) || !(userId in userAdminCache)) {   
+        // Firestoreへのアクセスは「1回だけ」
         const userSnapshot = await db.collection("users_random").doc(userId).get();
-       if (userSnapshot.exists) {
+    
+        if (userSnapshot.exists) {
           const userData = userSnapshot.data();
-          memberName = userData.name || "名前未設定";
-        }
-      }
       
-      if (userAdminCache[userId]) {
-        isAdmin = userAdminCache[userId];
-      } else {
-        const userSnapshot = await db.collection("users_random").doc(userId).get();
-       if (userSnapshot.exists) {
-          const userData = userSnapshot.data();
-          isAdmin = userData.isAdmin || false;
+          // 1回の通信で、両方のキャッシュを同時に保存する！
+          userCache[userId] = userData.name || "名前未設定";
+          userAdminCache[userId] = userData.isAdmin || false;
+        } else {
+          // ドキュメントが存在しなかった場合のセーフティ
+          userCache[userId] = "不明なユーザー";
+          userAdminCache[userId] = false;
         }
       }
+
+      memberName = userCache[userId];
+      isAdmin = userAdminCache[userId];
 
       // 4. 画面にメンバー名を表示するHTML要素を作成
       const memberElement = document.createElement("p");
@@ -539,27 +529,25 @@ async function openReadByModal(readByList) {
     let isAdmin = false;
     
     try {
-      if (userCache[userId]) {
-        name = userCache[userId];
-        // alert("cached");
-      } else {
+      if (!(userId in userCache) || !(userId in userAdminCache)) {   
+        // Firestoreへのアクセスは「1回だけ」
         const userSnapshot = await db.collection("users_random").doc(userId).get();
+    
         if (userSnapshot.exists) {
-          name = userSnapshot.data().name || "名前未設定";
-          userCache[userId] = name;
+          const userData = userSnapshot.data();
+      
+          // 1回の通信で、両方のキャッシュを同時に保存する！
+          userCache[userId] = userData.name || "名前未設定";
+          userAdminCache[userId] = userData.isAdmin || false;
+        } else {
+          // ドキュメントが存在しなかった場合のセーフティ
+          userCache[userId] = "不明なユーザー";
+          userAdminCache[userId] = false;
         }
       }
 
-      if (userAdminCache[userId]) {
-        isAdmin = userAdminCache[userId];
-        // alert("cached");
-      } else {
-        const userSnapshot = await db.collection("users_random").doc(userId).get();
-        if (userSnapshot.exists) {
-         isAdmin = userSnapshot.data().isAdmin || false;
-          userAdminCache[userId] = isAdmin;
-        }
-      }
+      name = userCache[userId];
+      isAdmin = userAdminCache[userId];
     } catch (e) {
       console.error(e);
     }
