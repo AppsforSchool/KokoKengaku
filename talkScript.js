@@ -422,18 +422,33 @@ async function getMember(talkId) {
     for (const userId of memberUserIds) {
       
       let memberName = "不明なユーザー";
+      let isAdmin = false;
 
       // 3. 各userIdをドキュメントIDとして、users_random から名前を取得
-      const userSnapshot = await db.collection("users_random").doc(userId).get();
+      if (userCache[userId) {
+        memberName = userCache[userId];
+      } else {
+        const userSnapshot = await db.collection("users_random").doc(userId).get();
+       if (userSnapshot.exists) {
+          const userData = userSnapshot.data();
+          memberName = userData.name || "名前未設定";
+        }
+      }
       
-      if (userSnapshot.exists) {
-        const userData = userSnapshot.data();
-        memberName = userData.name || "名前未設定";
+      if (userAdminCache[userId) {
+        isAdmin = userAdminCache[userId];
+      } else {
+        const userSnapshot = await db.collection("users_random").doc(userId).get();
+       if (userSnapshot.exists) {
+          const userData = userSnapshot.data();
+          isAdmin = userData.isAdmin || false;
+        }
       }
 
       // 4. 画面にメンバー名を表示するHTML要素を作成
       const memberElement = document.createElement("p");
       memberElement.textContent = memberName; // 名前とuserIdを表示
+      if (isAdmin) memberElement.classList.add("admin");
 
       // コンテナに追加（横並びにするなら span、縦並びにするなら div など）
       memberArea.appendChild(memberElement);
