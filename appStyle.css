@@ -738,7 +738,7 @@ button, input, span {
   -webkit-text-fill-color: transparent;
   color: transparent;
   
-  animation: wave 3s linear infinite;
+  animation: wave 2s linear infinite;
 }
 
 @keyframes wave {
