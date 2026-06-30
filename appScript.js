@@ -75,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const userSnapshot = await db.collection("users_random").doc(myUserId).get();
       const userData = userSnapshot.data();
       drawerUsername.textContent = userData.name;
+      if (userData.isAdmin) drawerUsername.classList.add("admin");
 
       myUid = userData.uid;
       getAllTalkData();
