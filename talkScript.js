@@ -555,7 +555,7 @@ async function openReadByModal(readByList) {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
         if (userSnapshot.exists) {
          isAdmin = userSnapshot.data().isAdmin || false;
-          userCache[userId] = isAdmin;
+          userAdminCache[userId] = isAdmin;
         }
       }
     } catch (e) {
