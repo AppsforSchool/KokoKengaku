@@ -535,10 +535,10 @@ async function openReadByModal(readByList) {
 
   // 既読リスト（userIdの配列）をループして名前を取得
   for (const userId of readByList) {
+    let name = "不明なユーザー";
+    let isAdmin = false;
+    
     try {
-      let name = "不明なユーザー";
-      let isAdmin = false;
-
       if (userCache[userId]) {
         name = userCache[userId];
       } else {
