@@ -425,7 +425,7 @@ async function getMember(talkId) {
       let isAdmin = false;
 
       // 3. 各userIdをドキュメントIDとして、users_random から名前を取得
-      if (userCache[userId) {
+      if (userCache[userId]) {
         memberName = userCache[userId];
       } else {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
@@ -435,7 +435,7 @@ async function getMember(talkId) {
         }
       }
       
-      if (userAdminCache[userId) {
+      if (userAdminCache[userId]) {
         isAdmin = userAdminCache[userId];
       } else {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
