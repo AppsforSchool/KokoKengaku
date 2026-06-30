@@ -646,6 +646,21 @@ button, input, span {
   font-size: 18px;
 }
 
+#drawerUsername.admin {
+  background: linear-gradient(
+    90deg,
+    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
+  );
+  background-size: 200% auto;
+  
+  -webkit-background-clip: text;
+  background-clip: text;
+  
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  
+  animation: wave 2s linear infinite;
+}
 
 #details-area {
   background-color: #eee;
