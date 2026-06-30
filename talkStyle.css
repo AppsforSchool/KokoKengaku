@@ -714,7 +714,7 @@ button, input, span {
   box-shadow: none;
 }
 
-#drawer-username.admin {
+#drawerUsername.admin {
   background: linear-gradient(
     90deg,
     #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
