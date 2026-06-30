@@ -541,7 +541,7 @@ async function openReadByModal(readByList) {
     try {
       if (userCache[userId]) {
         name = userCache[userId];
-        alert("cached");
+        // alert("cached");
       } else {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
         if (userSnapshot.exists) {
@@ -552,7 +552,7 @@ async function openReadByModal(readByList) {
 
       if (userAdminCache[userId]) {
         isAdmin = userAdminCache[userId];
-        alert("cached");
+        // alert("cached");
       } else {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
         if (userSnapshot.exists) {
