@@ -254,11 +254,17 @@ async function getAllTalkData(talkId) {
             openReadByModal(readByList);
           });
 
-          messageUser.textContent = `${senderName} ${displayTime} `;
+          const senderNameSpan = document.createElement("span");
+          senderNameSpan.textContent = `${senderName} `;
+          const displayTimeSpan = document.createElement("span");
+          displayTimeSpan.textContent = `${displayTime} `;
+          //messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
           if (isAdmin) {
-            messageUser.classList.add("admin");
+            displayTimeSpan.classList.add("admin");
           }
+          messageUser.appendChild(senderNameSpan);
+          messageUser.appendChild(displayTimeSpan);
           messageUser.appendChild(readSpan);
           message.appendChild(messageUser);
 
