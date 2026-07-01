@@ -258,7 +258,7 @@ async function getAllTalkData(talkId) {
           senderNameSpan.textContent = `${senderName} `;
           const displayTimeSpan = document.createElement("span");
           displayTimeSpan.textContent = `${displayTime} `;
-          //messageUser.textContent = `${senderName} ${displayTime} `;
+          // messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
           if (isAdmin) {
             displayTimeSpan.classList.add("admin");
