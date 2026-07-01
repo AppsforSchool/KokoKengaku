@@ -261,7 +261,7 @@ async function getAllTalkData(talkId) {
           // messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
           if (isAdmin) {
-            displayTimeSpan.classList.add("admin");
+            senderNameSpan.classList.add("admin");
           }
           messageUser.appendChild(senderNameSpan);
           messageUser.appendChild(displayTimeSpan);
