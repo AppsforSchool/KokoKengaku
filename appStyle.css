@@ -87,16 +87,17 @@ button, input, span {
   color: #333;
 }
 .drawer-close-button {
-  background: none;
+  background-color: #eee;
   border: none;
   font-size: 1.5rem;
+  font-weight: bold;
   cursor: pointer;
   color: #333;
-  background-color: #eee;
   
   width: 3rem;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  text-align: center;
 }
 
 .drawer-content {
