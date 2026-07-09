@@ -27,6 +27,7 @@ let drawerUsername;
 let changeUsernameButton;
 let newUsernameInput;
 let usernameMessage;
+
 document.addEventListener("DOMContentLoaded", () => {
   drawerOverlay = document.getElementById("drawerOverlay");
   accountSettingsDrawer = document.getElementById("accountSettingsDrawer");
@@ -106,19 +107,15 @@ const handleLogout = async () => {
 
 function updateNameButtonState() {
   if (changeUsernameButton) {
-    // changeUsernameButtonが存在する場合のみ実行
-    // 値があるかチェック
     usernameMessage.textContent = "";
     const hasNewName = newUsernameInput && newUsernameInput.value.trim() !== "";
-    // 入力されていればボタンを有効、そうでなければ無効
     changeUsernameButton.disabled = !hasNewName;
   }
 }
-// --- 名前変更処理 ---
+
 const handleChangeUsername = async () => {
-  // ドロワー内の入力要素とメッセージ要素を取得
   const newUsername = newUsernameInput.value.trim();
-  usernameMessage.textContent = ""; // メッセージをクリア
+  usernameMessage.textContent = "";
 
   if (changeUsernameButton) {
     changeUsernameButton.disabled = true;
@@ -128,30 +125,25 @@ const handleChangeUsername = async () => {
   try {
     const user = auth.currentUser;
     if (!user) throw new Error("ユーザーがログインしていません。");
-    // Firestoreの users/{UID} ドキュメントを更新
     const userId = user.email.split("@")[0];
     await db.collection("users_random").doc(userId).set(
       {
-        name: newUsername // フィールド名も前のコードに合わせて 'name' にしています
+        name: newUsername
       },
       { merge: true }
     );
 
     usernameMessage.style.color = "green";
     usernameMessage.textContent = "ユーザーネームが変更されました！";
-    drawerUsername.textContent = newUsername; // 表示を更新
-    newUsernameInput.value = ""; // 入力フィールドをクリア
+    drawerUsername.textContent = newUsername;
+    newUsernameInput.value = "";
     changeUsernameButton.disabled = true;
 
     userCache[userId] = newUsername;
-
-    // ヘッダーのアカウント設定ボタンの表示も更新
-    //if (headerUsername) headerUsername.textContent = newUsername;
   } catch (error) {
     console.error("ユーザーネーム変更エラー:", error);
     usernameMessage.style.color = "red";
-    usernameMessage.textContent =
-      "ユーザーネームの変更に失敗しました。" + error.message;
+    usernameMessage.textContent = "ユーザーネームの変更に失敗しました。" + error.message;
     changeUsernameButton.disabled = false;
   } finally {
     if (changeUsernameButton) {
@@ -163,8 +155,6 @@ const handleChangeUsername = async () => {
 async function getAllTalkData(talkId) {
   const talkTitle = document.getElementById("talk-title");
   const talkArea = document.getElementById("talk-area");
-  const talkLoading = document.getElementById("talk-loading");
-  
 
   try {
     const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
@@ -186,41 +176,31 @@ async function getAllTalkData(talkId) {
         loadingText.textContent = "loading...";
         talkArea.innerHTML = "";
         talkArea.appendChild(loadingText);
-        //talkLoading.classList.remove("hidden");
-        //talkArea.classList.add("hidden");
         newTalk.innerHTML = "";
-        for (const talkDoc of messageSnapshot.docs) {
-          
-          const messageData = talkDoc.data();
-          console.log(talkDoc.id);
-          console.log(messageData.message);
 
+        for (const talkDoc of messageSnapshot.docs) {
+          const messageData = talkDoc.data();
           const message = document.createElement("div");
           message.classList.add("message");
 
           const messageUser = document.createElement("p");
-
           const messageUserId = messageData.userId;
           let senderName = "不明なユーザー";
           let isAdmin = false;
+
           if (messageUserId) {
             if (!(messageUserId in userCache) || !(messageUserId in userAdminCache)) {
-              // Firestoreへのアクセスは「1回だけ」
               const userSnapshot = await db.collection("users_random").doc(messageUserId).get();
     
               if (userSnapshot.exists) {
                 const userData = userSnapshot.data();
-      
-                // 1回の通信で、両方のキャッシュを同時に保存する！
                 userCache[messageUserId] = userData.name || "名前未設定";
                 userAdminCache[messageUserId] = userData.isAdmin || false;
               } else {
-                // ドキュメントが存在しなかった場合のセーフティ
                 userCache[messageUserId] = "不明なユーザー";
                 userAdminCache[messageUserId] = false;
               }
             }
-            
             senderName = userCache[messageUserId];
             isAdmin = userAdminCache[messageUserId];
           }
@@ -232,10 +212,7 @@ async function getAllTalkData(talkId) {
           }
 
           const readByList = messageData.readBy || [];
-          //console.log(readByList);
           if (messageData.userId !== myUserId && !readByList.includes(myUserId)) {
-            // Firestoreの配列に自分のuserIdを「追加（上書きではなく合流）」する
-            // ※ awaitをつけずに裏で非同期で実行させることで、画面の描画を邪魔しません
             db.collection("KokoKengaku")
               .doc(talkId)
               .collection("talk")
@@ -258,7 +235,6 @@ async function getAllTalkData(talkId) {
           senderNameSpan.textContent = `${senderName} `;
           const displayTimeSpan = document.createElement("span");
           displayTimeSpan.textContent = `${displayTime} `;
-          // messageUser.textContent = `${senderName} ${displayTime} `;
           messageUser.classList.add("message-user");
           if (isAdmin) {
             senderNameSpan.classList.add("admin");
@@ -275,11 +251,9 @@ async function getAllTalkData(talkId) {
           message.appendChild(messageText);
 
           newTalk.appendChild(message);
-          
         }
         talkArea.innerHTML = "";
         talkArea.appendChild(newTalk);
-      
         talkArea.scrollTop = talkArea.scrollHeight;
 
         updateLastCheckedTime(talkId, myUserId);
@@ -292,46 +266,29 @@ async function getAllTalkData(talkId) {
 }
 
 function sanitizeHtmlToOnlyLinks(htmlString) {
-  // 1. ブラウザの機能を使って、文字列を一時的にHTMLドキュメントとして解析する
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
-  
-  // 結果を格納するための空のドキュメントフラグメント（箱）を作る
   const box = document.createDocumentFragment();
-
-  // 2. 解析したデータの中身（ノード）を1つずつチェックしていく
-  // doc.body.childNodes には、文字や各タグが順番に入っています
   const childNodes = Array.from(doc.body.childNodes);
 
   childNodes.forEach(node => {
-    // もしその要素が「普通の文字（テキストノード）」ならそのままコピー
     if (node.nodeType === Node.TEXT_NODE) {
       box.appendChild(document.createTextNode(node.textContent));
     } 
-    // もしその要素が「タグ（エレメントノード）」で、かつ「Aタグ」の場合だけ許可
     else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
       const safeLink = document.createElement('a');
-      
-      // 表面上のテキストをコピー
       safeLink.textContent = node.textContent;
-      
-      // href属性（リンク先）があればコピー、なければ '#' に
       const rawHref = node.getAttribute('href') || '#';
       safeLink.setAttribute('href', rawHref);
-      
-      // iPadの別タブで開く安全設定を強制付与
       safeLink.setAttribute('target', '_blank');
       safeLink.setAttribute('rel', 'noopener noreferrer');
-      safeLink.classList.add('chat-link'); // 先ほどのCSS用クラス
-
+      safeLink.classList.add('chat-link');
       box.appendChild(safeLink);
     }
-    // <a> 以外のタグ（<script> や <div> など）は、中身のテキストだけを抜き出してただの文字にする
     else if (node.nodeType === Node.ELEMENT_NODE) {
       box.appendChild(document.createTextNode(node.textContent));
     }
   });
-
   return box;
 }
 
@@ -342,12 +299,10 @@ function getParmFromUrl(parm) {
 
 function formatDateTime(date) {
   const yyyy = date.getFullYear();
-  // 月や日は1桁の場合、頭に「0」をつけて2桁にする（例: 6月 → 06）
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
   const hh = String(date.getHours()).padStart(2, "0");
   const min = String(date.getMinutes()).padStart(2, "0");
-
   return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
 }
 
@@ -363,23 +318,19 @@ document.addEventListener("DOMContentLoaded", () => {
   
   messageAddButton.addEventListener("click", async () => {
     const talkId = getParmFromUrl("id");
-    //const talkId = "foGOSYbDcjxGpfi6gmfs";
     await addMessage(talkId);
   });
 });
 
 function updateMessageAddButtonState() {
-  //messageAddButton.textContent = "";
-    const hasMessage = messageInput && messageInput.value.trim() !== "";
-    // 入力されていればボタンを有効、そうでなければ無効
-    messageAddButton.disabled = !hasMessage;
+  const hasMessage = messageInput && messageInput.value.trim() !== "";
+  messageAddButton.disabled = !hasMessage;
 }
 
 async function addMessage(talkId) {
   const message = messageInput.value.trim();
   messageAddButton.disabled = true;
   messageAddButton.textContent = "送信中...";
-    //usernameMessage.textContent = "";
   const user = auth.currentUser;
   const myUserId = user.email.split("@")[0];
   try {
@@ -387,11 +338,10 @@ async function addMessage(talkId) {
       .doc(talkId)
       .collection("talk")
       .add({
-        userId: myUserId,                                      // 送信者のuserId
+        userId: myUserId,
         message: message,     
         readBy: [],
-        // メッセージ本文（改行データもそのまま入ります）
-        time: firebase.firestore.FieldValue.serverTimestamp() // サーバー時間（Timestamp型）
+        time: firebase.firestore.FieldValue.serverTimestamp()
       });
   }
   catch (error) {
@@ -402,37 +352,40 @@ async function addMessage(talkId) {
     messageAddButton.textContent = "送信";
     messageInput.value = "";
   }
-};
+}
 
 async function getMember(talkId) {
   const memberArea = document.getElementById("member-area");
   memberArea.innerHTML = "";
   try {
     const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
-    if (!roomSnapshot.exists) {
-      return;
-    }
+    if (!roomSnapshot.exists) return;
     
     const roomData = roomSnapshot.data();
     const memberUserIds = roomData.members || [];
     
+    // 自分が管理者かどうかを判定
+    const isMeAdmin = userAdminCache[myUserId] || false;
+
     for (const userId of memberUserIds) {
-      
       let memberName = "不明なユーザー";
       let isAdmin = false;
+      let lastCheckedTimeStr = "";
 
-      if (!(userId in userCache) || !(userId in userAdminCache)) {   
-        // Firestoreへのアクセスは「1回だけ」
+      // 毎回最新の確認日時を取得するため、自分が管理者の場合はドキュメントを直接取得
+      if (isMeAdmin || !(userId in userCache) || !(userId in userAdminCache)) {   
         const userSnapshot = await db.collection("users_random").doc(userId).get();
     
         if (userSnapshot.exists) {
           const userData = userSnapshot.data();
-      
-          // 1回の通信で、両方のキャッシュを同時に保存する！
           userCache[userId] = userData.name || "名前未設定";
           userAdminCache[userId] = userData.isAdmin || false;
+
+          if (isMeAdmin && userData.lastChecked && userData.lastChecked[talkId]) {
+            const dateObject = userData.lastChecked[talkId].toDate();
+            lastCheckedTimeStr = formatDateTime(dateObject);
+          }
         } else {
-          // ドキュメントが存在しなかった場合のセーフティ
           userCache[userId] = "不明なユーザー";
           userAdminCache[userId] = false;
         }
@@ -441,12 +394,25 @@ async function getMember(talkId) {
       memberName = userCache[userId];
       isAdmin = userAdminCache[userId];
 
-      // 4. 画面にメンバー名を表示するHTML要素を作成
-      const memberElement = document.createElement("p");
-      memberElement.textContent = memberName; // 名前とuserIdを表示
+      // フレキシブルに端寄せするために div を親要素にする
+      const memberElement = document.createElement("div");
+      memberElement.classList.add("member-item");
       if (isAdmin) memberElement.classList.add("admin");
 
-      // コンテナに追加（横並びにするなら span、縦並びにするなら div など）
+      // 名前
+      const nameSpan = document.createElement("span");
+      nameSpan.classList.add("member-name");
+      nameSpan.textContent = memberName;
+      memberElement.appendChild(nameSpan);
+
+      // 管理者かつデータがある場合のみ、右側に最終確認時間を追加
+      if (isMeAdmin) {
+        const timeSpan = document.createElement("span");
+        timeSpan.classList.add("member-last-checked");
+        timeSpan.textContent = lastCheckedTimeStr ? `最終チェック: ${lastCheckedTimeStr}` : "未確認";
+        memberElement.appendChild(timeSpan);
+      }
+
       memberArea.appendChild(memberElement);
     }
   }
@@ -458,11 +424,10 @@ async function getMember(talkId) {
 async function updateLastCheckedTime(talkId, myUserId) {
   try {
     await db.collection("users_random").doc(myUserId).set({
-      // lastChecked というオブジェクトの中に、ルームIDをキーにして時間を保存
       lastChecked: {
         [talkId]: firebase.firestore.FieldValue.serverTimestamp()
       }
-    }, { merge: true }); // 他のデータを消さないようにマージ
+    }, { merge: true });
     console.log(`${talkId} の最終確認時刻を更新しました`);
   } catch (error) {
     console.error("最終確認時刻の更新に失敗:", error);
@@ -504,6 +469,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
   memberButton.addEventListener("click", () => {
     memberModal.classList.remove("hidden");
+    const talkId = getParmFromUrl("id");
+    getMember(talkId); // モーダルを開くタイミングで最新を再取得
   });
   memberModalClose.addEventListener("click", () => {
     memberModal.classList.add("hidden");
@@ -524,29 +491,24 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function openReadByModal(readByList) {
-  readArea.innerHTML = "読み込み中..."; // 一時表示
+  readArea.innerHTML = "読み込み中...";
   readModal.classList.remove("hidden");
 
   const fragment = document.createDocumentFragment();
 
-  // 既読リスト（userIdの配列）をループして名前を取得
   for (const userId of readByList) {
     let name = "不明なユーザー";
     let isAdmin = false;
     
     try {
       if (!(userId in userCache) || !(userId in userAdminCache)) {   
-        // Firestoreへのアクセスは「1回だけ」
         const userSnapshot = await db.collection("users_random").doc(userId).get();
     
         if (userSnapshot.exists) {
           const userData = userSnapshot.data();
-      
-          // 1回の通信で、両方のキャッシュを同時に保存する！
           userCache[userId] = userData.name || "名前未設定";
           userAdminCache[userId] = userData.isAdmin || false;
         } else {
-          // ドキュメントが存在しなかった場合のセーフティ
           userCache[userId] = "不明なユーザー";
           userAdminCache[userId] = false;
         }
@@ -564,6 +526,6 @@ async function openReadByModal(readByList) {
     fragment.appendChild(p);
   }
 
-  readArea.innerHTML = ""; // 読み込み中を消去
+  readArea.innerHTML = "";
   readArea.appendChild(fragment);
 }
