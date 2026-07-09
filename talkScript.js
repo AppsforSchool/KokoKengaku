@@ -7,6 +7,7 @@ const firebaseConfig = {
   appId: "1:740735293440:web:982702b6d53aaa18ec60e5"
 };
 
+
 // Firebase 初期化とサービス取得
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
