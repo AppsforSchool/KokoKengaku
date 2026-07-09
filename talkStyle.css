@@ -329,7 +329,7 @@ a {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 8px 4px;
+  // padding: 8px 4px;
   // border-bottom: 1px solid #eee;
 }
 .member-item:last-child {
