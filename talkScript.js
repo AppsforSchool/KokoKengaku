@@ -449,7 +449,7 @@ function getMember(talkId) {
     if (isMeAdmin) {
       const timeSpan = document.createElement("span");
       timeSpan.classList.add("member-last-checked");
-      timeSpan.textContent = lastCheckedTimeStr ? `最終チェック: ${lastCheckedTimeStr}` : "未確認";
+      timeSpan.textContent = lastCheckedTimeStr ? lastCheckedTimeStr : "未確認";
       memberElement.appendChild(timeSpan);
     }
 
