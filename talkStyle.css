@@ -27,17 +27,11 @@ div, p {
 a {
   color: var(--primary);
 }
-/*
-button, input, span {
-  -webkit-tap-highlight-color: transparent;
-}
-*/
 .hidden {
   display: none;
 }
 
-
-
+/* --- アカウント設定ドロワー --- */
 .drawer-overlay {
   position: fixed;
   top: 0;
@@ -59,13 +53,13 @@ button, input, span {
   position: fixed;
   top: 0;
   right: 0;
-  width: 300px; /* ドロワーの幅 */
-  max-width: 80%; /* 狭い画面での最大幅 */
+  width: 300px;
+  max-width: 80%;
   height: 100%;
   background-color: white;
   box-shadow: -2px 0 10px rgba(0,0,0,0.2);
   z-index: 1000;
-  transform: translateX(100%); /* 初期状態：画面外に隠す */
+  transform: translateX(100%);
   transition: transform 0.3s ease;
   padding: 20px;
   box-sizing: border-box;
@@ -73,7 +67,7 @@ button, input, span {
   flex-direction: column;
 }
 .drawer.is-open {
-  transform: translateX(0); /* オープン状態：画面内に表示 */
+  transform: translateX(0);
 }
 
 .drawer-header {
@@ -97,7 +91,6 @@ button, input, span {
   font-weight: bold;
   cursor: pointer;
   color: #333;
-  
   width: 3rem;
   border-radius: 5px;
   transition: background-color 0.3s ease;
@@ -106,9 +99,9 @@ button, input, span {
 
 .drawer-content {
   flex-grow: 1;
-  overflow-y: auto; /* コンテンツがはみ出たらスクロール */
+  overflow-y: auto;
   padding-left: 5px;
-  padding-right: 10px; /* スクロールバーとの間隔 */
+  padding-right: 10px;
 }
 
 .drawer-section {
@@ -135,7 +128,6 @@ button, input, span {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
   font-size: 1rem;
-  
   padding: 0.6rem;
   width: 100%;
   margin-top: 0.5rem;
@@ -143,7 +135,6 @@ button, input, span {
   cursor: pointer;
   display: block;
   box-sizing: border-box;
-
   background-color: var(--primary);
   color: #fff; 
   border: none;
@@ -161,7 +152,6 @@ button, input, span {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
   font-size: 0.8rem;
-  
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 10px;
@@ -182,25 +172,20 @@ button, input, span {
   font-size: 0.8rem;
   margin-top: 0.4rem;
 }
-.drawer #passwordMessage {
-  font-size: 14px;
-  margin-top: 5px;
-}
 
-
+/* --- モーダル共通 --- */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8); /* 少し濃いめの黒 */
+  background: rgba(0, 0, 0, 0.8);
   z-index: 10000;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .modal-overlay.hidden {
   display: none;
 }
@@ -212,7 +197,6 @@ button, input, span {
   width: 90%;
   max-width: 500px;
   text-align: center;
-  
 }
 .modal-header {
   display: flex;
@@ -223,7 +207,6 @@ button, input, span {
 .modal-content .title {
   font-size: 1.2rem;
   font-weight: 700;
-  /*margin-bottom: 2rem;*/
 }
 .modal-content .close-button {
   background-color: #eee;
@@ -232,7 +215,6 @@ button, input, span {
   font-weight: bold;
   cursor: pointer;
   color: #333;
-  
   width: 3rem;
   border-radius: 5px;
   transition: background-color 0.3s ease;
@@ -246,12 +228,12 @@ button, input, span {
   cursor: pointer;
 }
 .modal-content img {
-    max-width: 100%; 
-    max-height: 80vh; /* ビューポートの高さの80%など、適切な値に調整 */
-    height: auto; /* アスペクト比を維持 */
+  max-width: 100%; 
+  max-height: 80vh;
+  height: auto;
 }
 
-
+/* --- ヘッダー領域 --- */
 #app-header {
   display: flex;
   justify-content: space-between;
@@ -259,9 +241,6 @@ button, input, span {
   padding: 0.8rem;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-#app-header .hidden {
-  display: none;
 }
 #app-header #title-area {
   display: flex;
@@ -276,13 +255,10 @@ button, input, span {
     #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
   );
   background-size: 200% auto;
-  
   -webkit-background-clip: text;
   background-clip: text;
-  
   -webkit-text-fill-color: transparent;
   color: transparent;
-  
   animation: wave 2s linear infinite;
 }
 
@@ -290,14 +266,10 @@ button, input, span {
   display: flex;
   align-items: center;
 }
-#header-username {
-  font-weight: 700;
-}
-#setting-button {
+#setting-button, #share-modal-btn {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
-  
   padding: 0.4rem;
   margin: 0 0 0 0.8rem;
   width: auto;
@@ -305,7 +277,6 @@ button, input, span {
   cursor: pointer;
   display: block;
   box-sizing: border-box;
-
   background-color: var(--primary);
   color: #fff;
   border: none;
@@ -313,90 +284,7 @@ button, input, span {
   box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
 }
 
-#share-modal-btn {
-  font-family: "BIZ UDGothic", sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  
-  padding: 0.4rem;
-  margin: 0 0 0 0.8rem;
-  width: auto;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
-
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 0.3rem;
-  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
-}
-
-
-.modal {
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.modal.hidden {
-  display: none;
-}
-.modal-content {
-  background-color: #fff;
-  padding: 20px;
-  width: 80%;
-  max-width: 500px;
-  border-radius: 10px;
-  position: relative;
-  
-  text-align: center;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-.modal-content .title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  /*margin-bottom: 2rem;*/
-}
-.modal-content .close-button {
-  background-color: #eee;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  color: #333;
-  
-  width: 3rem;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  text-align: center;
-}
-.modal-content .close-button:hover,
-.modal-content .close-button:focus {
-  color: #000;
-  background-color: #e0e0e0;
-  text-decoration: none;
-  cursor: pointer;
-}
-.modal-content img {
-    max-width: 100%; 
-    max-height: 80vh; /* ビューポートの高さの80%など、適切な値に調整 */
-    height: auto; /* アスペクト比を維持 */
-}
-
-
+/* --- メインコンテナ --- */
 #selection-container {
   max-width: 800px;
   margin: 40px auto;
@@ -415,391 +303,52 @@ button, input, span {
   padding-bottom: 10px;
 }
 
-.mini {
-  font-size: 70%;
-}
-
-.split-line {
-  display: flex;
-  width: 90%;
-  border-bottom: 1.5px solid #ddd;
-  margin: 2rem auto;
-}
-
 .selection {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
-  
   flex-direction: column;
   gap: 10px;
 }
-.selection .title-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.selection .title-area .title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  width: auto;
-}
-.selection .title-area button {
-  font-weight: 700;
-  font-size: 0.8rem;
-  
-  padding: 0.3rem 0.4rem;
-  margin: 0 0 0 0.8rem;
-  width: auto;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
 
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 0.3rem;
-}
-.selection .title-area button:hover {
-  background-color: var(--primary);
-}
-
-.selection .normal-buttons {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  
-}
-
-.selection button {
-  padding: 0.8rem 1.2rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: var(--primary);
-  cursor: pointer;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  transition: all 0.3s ease;
-  
-  width: 85%;
-  max-width: 500px;
-  margin: 0 auto;
-  margin-bottom: 0.4rem;
-}
-.selection button:hover {
-  background-color: #e9e9e9;
-  border-color: #aaa;
-}
-.selection button.active {
-  background-color: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.5);
-}
-
-.selection button:disabled {
-  background-color: #ccc;
-  color: white;
-  box-shadow: none;
-}
-
-.selection select {
-  font-family: "BIZ UDGothic", sans-serif;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--primary);
-  
-  width: 85%;
-  padding: 0.5rem;
-  margin: auto;
-  margin-bottom: 0.8rem;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  outline: none;
-}
-.selection select:hover {
-  border-color: #999;
-}
-
-.selection .segmented-buttons {
-  display: flex;
-  width: 85%;
-  margin-left: auto;
-  margin-right: auto;
-}
-.selection .segmented-buttons button {
-  border-color: var(--primary);
-  border-radius: 0;
-  margin-left: -2px;
-  margin-right: -2px;
-  width: 100%;
-  max-width: none;
-  flex: 1;
-}
-.selection .segmented-buttons button:hover {
-  background-color: var(--light);
-  border-color: var(--primary);
-}
-.selection .segmented-buttons button.active {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  box-shadow: none;
-}
-.selection .segmented-buttons :first-child {
-  border-radius: 8px 0 0 8px;
-  margin-left: 0;
-}
-.selection .segmented-buttons :last-child {
-  border-radius: 0 8px 8px 0;
-  margin-right: 0;
-}
-.selection .segmented-buttons :first-child:last-child {
-  border-radius: 8px;
-}
-
-.buttons-box {
-  background-color: #eee;
-  height: auto;
-  width: 85%;
-  overflow-y: auto;
-  margin: auto;
-  justify-content: flex-start;
-  /*padding: 0;*/
-
-  border-radius: 0.75rem;
-}
-.buttons-box button:first-child {
-  margin-top: 1rem;
-}
-.buttons-box button:last-child {
-  margin-bottom: 1rem;
-}
-.buttons-box .title-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 1rem;
-  padding-bottom: 0.4rem;
-}
-.buttons-box .title-area .head {
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-.buttons-box .title-area button {
-  font-weight: 700;
-  font-size: 0.8rem;
-  
-  padding: 0.3rem 0.4rem;
-  margin: 0 0 0 0.8rem;
-  width: auto;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
-
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 0.3rem;
-}
-.buttons-box button {
-  margin-bottom: 0.4rem;
-  padding: 0.6rem 1rem;
-}
-
-
-.number-stepper {
-  display: inline-flex;
-  align-items: center;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  width: 85%;
-  height: 50px;
-  padding: 0;
-  margin-left: auto;
-  margin-right: auto;
-}
-.number-stepper:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.25);
-}
-.number-stepper button {
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  width: 50px;
-  height: 100%;
-  font-size: 24px;
-  color: #555;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  
-  -webkit-tap-highlight-color: transparent;
-}
-.number-stepper button:hover {
-  background-color: #f0f0f0;
-  background-color: transparent;
-  color: #000;
-}
-.number-stepper button:first-child {
-  margin-left: -2px;
-}
-.number-stepper button:last-child {
-  margin-right: -2px;
-}
-
-.number-input {
-  flex: 1; /* 残りの幅をすべて使う */
-  border: none;
-  outline: none;
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-  width: 100%;
-  height: 100%;
-}
-.number-input::placeholder {
-  font-size: 18px;
-}
-
-
-#details-area {
-  background-color: #eee;
-  height: 400px;
-  width: 85%;
-  overflow-y: auto;
-  margin: auto;
-  justify-content: flex-start;
-  /*align-items: flex-start;
-  /*padding: 0;*/
-
-  border-radius: 0.75rem;
-}
-#details-loading {
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-top: 1rem;
-}
-#details-loading.hidden {
-  display: none;
-}
-
-
-.detail-message {
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-top: -0.2rem;
-  line-height: 1.2;
-}
-.error-message {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #ff5050;
-  margin-top: -0.5rem;
-}
-
-#selection-container #start-button {
-  padding: 0.8rem 1.2rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-  
-  color: white;
-  background-color: var(--primary);
-  cursor: pointer;
-  border: 2px solid var(--primary);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  
-  width: 85%;
-  max-width: 500px;
-  margin: 0 auto;
-  margin-bottom: 0.4rem;
-  box-shadow: 0 2px 5px rgba(var(--primary-rgb), 0.5);
-}
-#selection-container #start-button:disabled {
-  background-color: #ccc;
-  border-color: #ccc;
-  box-shadow: none;
-}
-
-#drawerUsername.admin {
-  background: linear-gradient(
-    90deg,
-    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
-  );
-  background-size: 200% auto;
-  
-  -webkit-background-clip: text;
-  background-clip: text;
-  
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  
-  animation: wave 2s linear infinite;
-}
-
-#to-home-button {
-  font-family: "BIZ UDGothic", sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  
-  padding: 0.4rem;
-  margin: 0;
-  width: auto;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
-
-  background-color: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 0.3rem;
-  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
-}
-#member-button {
-  font-weight: bold;
-  color: #808080;
-  text-decoration: underline;
-  margin: 0;
-}
+/* --- メンバー・既読モーダルの中身 --- */
 #member-area,
 #read-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
 }
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px 4px;
+  border-bottom: 1px solid #eee;
+}
+.member-item:last-child {
+  border-bottom: none;
+}
+
+.member-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.member-last-checked {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #808080;
+}
+
 #member-area p,
 #read-area p {
   font-weight: bold;
   font-size: 1.1rem;
 }
-#member-area p.admin,
-#read-area p.admin {
-  background: linear-gradient(
-    90deg,
-    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
-  );
-  background-size: 200% auto;
-  
-  -webkit-background-clip: text;
-  background-clip: text;
-  
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  
-  animation: wave 2s linear infinite;
-}
 
+/* --- トーク上部操作エリア --- */
 #head-area {
   display: flex;
   gap: 10px;
@@ -810,6 +359,27 @@ button, input, span {
   font-weight: bold;
   font-size: 1.2rem;
 }
+#member-button {
+  font-weight: bold;
+  color: #808080;
+  text-decoration: underline;
+  margin: 0;
+  cursor: pointer;
+}
+#to-home-button {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.4rem;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
+  cursor: pointer;
+}
+
+/* --- チャット・タイムライン領域 --- */
 #talk-area {
   display: flex;
   flex-direction: column;
@@ -817,15 +387,11 @@ button, input, span {
   overflow-y: scroll;
   justify-content: flex-start;
 }
-#talk-area.hidden {
-  display: none;
-}
 .message {
   display: flex;
   flex-direction: column;
   text-align: left;
   width: 100%;
-
   margin-bottom: 16px;
 }
 .message:last-child {
@@ -836,66 +402,27 @@ button, input, span {
   font-size: 0.9rem;
   color: #808080;
 }
-.message .message-user .admin {
-  font-weight: bold;
-  
-  background: linear-gradient(
-    90deg,
-    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
-  );
-  background-size: 200% auto;
-  
-  -webkit-background-clip: text;
-  background-clip: text;
-  
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  
-  animation: wave 2s linear infinite;
-}
-@keyframes wave {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
 .message .message-text {
   font-size: 1.1rem;
   font-weight: bold;
-  
   white-space: pre-wrap;
   line-height: 1.2;
 }
-.message .message-read {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #808080;
-  
-}
 
+/* --- メッセージ送信エリア --- */
 #message-add-area {
   display: flex;
-  
 }
 #message-input {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
   font-size: 1.0rem;
-  
   width: 90%;
-  //max-width: 300px;
   padding: 0.5rem;
-  margin: 0;
-  margin-right: 10px;
+  margin: 0 10px 0 0;
   border: 2px solid #ccc;
   border-radius: 6px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-#message-input:hover {
-  border-color: #999;
 }
 #message-input:focus {
   border-color: var(--primary);
@@ -906,15 +433,8 @@ button, input, span {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
-  
   padding: 0.4rem;
-  margin: 0;
   width: 5rem;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
-
   background-color: var(--primary);
   color: #fff;
   border: none;
@@ -923,11 +443,32 @@ button, input, span {
 }
 #message-add-button:disabled {
   background-color: #ccc;
-  border-color: #ccc;
   box-shadow: none;
 }
 
+/* --- レインボー・アニメーション共通 --- */
+.member-item.admin .member-name,
+#read-area p.admin,
+#drawerUsername.admin,
+.message .message-user .admin {
+  background: linear-gradient(
+    90deg,
+    #ff5a5a, #ffbc41, #f5f551, #5eff5e, #84a1ff, #ff45ff, #ff5a5a
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: wave 2s linear infinite;
+}
 
+@keyframes wave {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* --- フッター --- */
 footer {
   background-color: #333;
   color: white;
@@ -939,11 +480,8 @@ footer p {
   font-size: 0.7rem;
 }
 
+/* --- レスポンシブ対応 --- */
 @media (max-width: 600px) {
-  /*#app-header {
-    flex-direction: column;
-    gap: 10px;
-  }*/
   #user-data {
     flex-direction: column;
     gap: 0.2rem;
@@ -951,31 +489,4 @@ footer p {
   #setting-button {
     margin: 0;
   }
-  
-  #share-modal-btn {
-    width: auto;
-  }
-  
-  .selection .segmented-buttons {
-    flex-direction: column;
-  }
-  .selection .segmented-buttons button {
-    margin: 0;
-    margin-top: -2px;
-    margin-bottom: -2px;
-    border-radius: 0;
-  }
-  .selection .segmented-buttons :first-child {
-    border-radius: 8px 8px 0 0;
-    margin-top: 0;
-  }
-  .selection .segmented-buttons :last-child {
-    border-radius: 0 0 8px 8px;
-    margin-bottom: 0;
-  }
-  /*
-  button {
-    width: 80%;
-  }
-  */
 }
