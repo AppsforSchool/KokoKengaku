@@ -312,12 +312,16 @@ a {
 }
 
 /* --- メンバー・既読モーダルの中身 --- */
-#member-area,
-#read-area {
+#member-area {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   width: 100%;
+}
+#read-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .member-item {
@@ -326,10 +330,10 @@ a {
   align-items: center;
   width: 100%;
   padding: 8px 4px;
-  border-bottom: 1px solid #eee;
+  // border-bottom: 1px solid #eee;
 }
 .member-item:last-child {
-  border-bottom: none;
+  // border-bottom: none;
 }
 
 .member-name {
