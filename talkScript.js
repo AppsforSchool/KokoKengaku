@@ -19,6 +19,7 @@ let myUid = "";
 let userCache = {};
 let userAdminCache = {};
 let userLastCheckedCache = {}; // ★ 最終確認日時用のキャッシュを追加
+let currentRoomMembers = [];   // ★ 現在のルームのメンバーIDリストを保持する変数を追加
 
 // onSnapshotのリスナー解除用
 let memberSubscribers = [];
@@ -103,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ★ 【新設】ルームメンバーの情報を裏側でリアルタイムに監視してキャッシュを更新する関数
+// ★ ルームメンバーの情報を裏側でリアルタイムに監視してキャッシュを更新する関数
 async function setupMemberSnapshots(talkId) {
   try {
     const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
@@ -111,6 +112,7 @@ async function setupMemberSnapshots(talkId) {
 
     const roomData = roomSnapshot.data();
     const memberUserIds = roomData.members || [];
+    currentRoomMembers = memberUserIds; // ★ ルームに所属するメンバーID一覧を保持
 
     // 既存のリスナーがあれば念のため解除
     memberSubscribers.forEach(unsub => unsub());
@@ -414,7 +416,7 @@ async function addMessage(talkId) {
   }
 }
 
-// ★ 完全にキャッシュから同期処理でUIを組み立てる軽量関数にリプレイス
+// ★ ルームの members リストに入っている人のみを表示するように修正
 function getMember(talkId) {
   const memberArea = document.getElementById("member-area");
   memberArea.innerHTML = "";
@@ -422,10 +424,8 @@ function getMember(talkId) {
   // 自分が管理者かどうかを判定
   const isMeAdmin = userAdminCache[myUserId] || false;
 
-  // キャッシュに存在するユーザーID（setupMemberSnapshots で登録されたメンバー一覧）でループ
-  const memberUserIds = Object.keys(userCache);
-
-  for (const userId of memberUserIds) {
+  // ★ 全キャッシュのキーではなく、ルームに属するメンバーIDリストでループを回す
+  for (const userId of currentRoomMembers) {
     const memberName = userCache[userId] || "不明なユーザー";
     const isAdmin = userAdminCache[userId] || false;
     let lastCheckedTimeStr = "";
