@@ -7,7 +7,6 @@ const firebaseConfig = {
   appId: "1:740735293440:web:982702b6d53aaa18ec60e5"
 };
 
-
 // Firebase 初期化とサービス取得
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -15,8 +14,14 @@ const db = firebase.firestore();
 
 let myUserId = "";
 let myUid = "";
+
+// キャッシュ用オブジェクト
 let userCache = {};
 let userAdminCache = {};
+let userLastCheckedCache = {}; // ★ 最終確認日時用のキャッシュを追加
+
+// onSnapshotのリスナー解除用
+let memberSubscribers = [];
 
 let drawerOverlay;
 let accountSettingsDrawer;
@@ -79,10 +84,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         myUid = userData.uid;
         const talkId = getParmFromUrl("id");
+
+        // ★ メンバーのリアルタイム監視・キャッシュ化を開始
+        await setupMemberSnapshots(talkId);
+
         getAllTalkData(talkId);
-        getMember(talkId);
       } else {
         console.log("logout");
+        // ログアウト時にリスナーをすべて解除
+        memberSubscribers.forEach(unsub => unsub());
+        memberSubscribers = [];
         window.location.href = "./index.html";
       }
     } catch (error) {
@@ -91,6 +102,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// ★ 【新設】ルームメンバーの情報を裏側でリアルタイムに監視してキャッシュを更新する関数
+async function setupMemberSnapshots(talkId) {
+  try {
+    const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
+    if (!roomSnapshot.exists) return;
+
+    const roomData = roomSnapshot.data();
+    const memberUserIds = roomData.members || [];
+
+    // 既存のリスナーがあれば念のため解除
+    memberSubscribers.forEach(unsub => unsub());
+    memberSubscribers = [];
+
+    // 各メンバーのドキュメントに onSnapshot を設定
+    memberUserIds.forEach((userId) => {
+      const unsub = db.collection("users_random").doc(userId).onSnapshot((doc) => {
+        if (doc.exists) {
+          const userData = doc.data();
+          
+          // 各種キャッシュを最新状態に更新
+          userCache[userId] = userData.name || "名前未設定";
+          userAdminCache[userId] = userData.isAdmin || false;
+          
+          if (!userLastCheckedCache[userId]) {
+            userLastCheckedCache[userId] = {};
+          }
+          
+          if (userData.lastChecked && userData.lastChecked[talkId]) {
+            const dateObject = userData.lastChecked[talkId].toDate();
+            userLastCheckedCache[userId][talkId] = formatDateTime(dateObject);
+          } else {
+            userLastCheckedCache[userId][talkId] = "";
+          }
+
+          // もしメンバーモーダルが現在開いている状態なら、UIを自動で再描画する
+          const memberModal = document.getElementById("member-modal");
+          if (memberModal && !memberModal.classList.contains("hidden")) {
+            getMember(talkId);
+          }
+        }
+      });
+      memberSubscribers.push(unsub);
+    });
+  } catch (error) {
+    console.error("メンバーの監視設定に失敗しました:", error);
+  }
+}
 
 const handleLogout = async () => {
   const isConfirmed = confirm("ログアウトしますか？");
@@ -192,7 +251,7 @@ async function getAllTalkData(talkId) {
           if (messageUserId) {
             if (!(messageUserId in userCache) || !(messageUserId in userAdminCache)) {
               const userSnapshot = await db.collection("users_random").doc(messageUserId).get();
-    
+            
               if (userSnapshot.exists) {
                 const userData = userSnapshot.data();
                 userCache[messageUserId] = userData.name || "名前未設定";
@@ -355,70 +414,46 @@ async function addMessage(talkId) {
   }
 }
 
-async function getMember(talkId) {
+// ★ 完全にキャッシュから同期処理でUIを組み立てる軽量関数にリプレイス
+function getMember(talkId) {
   const memberArea = document.getElementById("member-area");
   memberArea.innerHTML = "";
-  try {
-    const roomSnapshot = await db.collection("KokoKengaku").doc(talkId).get();
-    if (!roomSnapshot.exists) return;
-    
-    const roomData = roomSnapshot.data();
-    const memberUserIds = roomData.members || [];
-    
-    // 自分が管理者かどうかを判定
-    const isMeAdmin = userAdminCache[myUserId] || false;
 
-    for (const userId of memberUserIds) {
-      let memberName = "不明なユーザー";
-      let isAdmin = false;
-      let lastCheckedTimeStr = "";
+  // 自分が管理者かどうかを判定
+  const isMeAdmin = userAdminCache[myUserId] || false;
 
-      // 毎回最新の確認日時を取得するため、自分が管理者の場合はドキュメントを直接取得
-      if (isMeAdmin || !(userId in userCache) || !(userId in userAdminCache)) {   
-        const userSnapshot = await db.collection("users_random").doc(userId).get();
-    
-        if (userSnapshot.exists) {
-          const userData = userSnapshot.data();
-          userCache[userId] = userData.name || "名前未設定";
-          userAdminCache[userId] = userData.isAdmin || false;
+  // キャッシュに存在するユーザーID（setupMemberSnapshots で登録されたメンバー一覧）でループ
+  const memberUserIds = Object.keys(userCache);
 
-          if (isMeAdmin && userData.lastChecked && userData.lastChecked[talkId]) {
-            const dateObject = userData.lastChecked[talkId].toDate();
-            lastCheckedTimeStr = formatDateTime(dateObject);
-          }
-        } else {
-          userCache[userId] = "不明なユーザー";
-          userAdminCache[userId] = false;
-        }
-      }
+  for (const userId of memberUserIds) {
+    const memberName = userCache[userId] || "不明なユーザー";
+    const isAdmin = userAdminCache[userId] || false;
+    let lastCheckedTimeStr = "";
 
-      memberName = userCache[userId];
-      isAdmin = userAdminCache[userId];
-
-      // フレキシブルに端寄せするために div を親要素にする
-      const memberElement = document.createElement("div");
-      memberElement.classList.add("member-item");
-      if (isAdmin) memberElement.classList.add("admin");
-
-      // 名前
-      const nameSpan = document.createElement("span");
-      nameSpan.classList.add("member-name");
-      nameSpan.textContent = memberName;
-      memberElement.appendChild(nameSpan);
-
-      // 管理者かつデータがある場合のみ、右側に最終確認時間を追加
-      if (isMeAdmin) {
-        const timeSpan = document.createElement("span");
-        timeSpan.classList.add("member-last-checked");
-        timeSpan.textContent = lastCheckedTimeStr ? `最終チェック: ${lastCheckedTimeStr}` : "未確認";
-        memberElement.appendChild(timeSpan);
-      }
-
-      memberArea.appendChild(memberElement);
+    // キャッシュから対象トークルームの最終確認日時を取得
+    if (userLastCheckedCache[userId] && userLastCheckedCache[userId][talkId]) {
+      lastCheckedTimeStr = userLastCheckedCache[userId][talkId];
     }
-  }
-  catch (error) {
-    console.log(error);
+
+    const memberElement = document.createElement("div");
+    memberElement.classList.add("member-item");
+    if (isAdmin) memberElement.classList.add("admin");
+
+    // 名前
+    const nameSpan = document.createElement("span");
+    nameSpan.classList.add("member-name");
+    nameSpan.textContent = memberName;
+    memberElement.appendChild(nameSpan);
+
+    // 自分が管理者かつデータがある場合のみ、右側に最終確認時間を追加
+    if (isMeAdmin) {
+      const timeSpan = document.createElement("span");
+      timeSpan.classList.add("member-last-checked");
+      timeSpan.textContent = lastCheckedTimeStr ? `最終チェック: ${lastCheckedTimeStr}` : "未確認";
+      memberElement.appendChild(timeSpan);
+    }
+
+    memberArea.appendChild(memberElement);
   }
 }
 
@@ -471,7 +506,7 @@ document.addEventListener("DOMContentLoaded", () => {
   memberButton.addEventListener("click", () => {
     memberModal.classList.remove("hidden");
     const talkId = getParmFromUrl("id");
-    getMember(talkId); // モーダルを開くタイミングで最新を再取得
+    getMember(talkId); // ★ キャッシュから瞬時にUI描画を行うため、完全にノンブロッキングで一瞬で開く
   });
   memberModalClose.addEventListener("click", () => {
     memberModal.classList.add("hidden");
@@ -491,6 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ★ 既読モーダルも基本的には既存のユーザーデータキャッシュを最優先に利用するように最適化
 async function openReadByModal(readByList) {
   readArea.innerHTML = "読み込み中...";
   readModal.classList.remove("hidden");
@@ -498,13 +534,14 @@ async function openReadByModal(readByList) {
   const fragment = document.createDocumentFragment();
 
   for (const userId of readByList) {
-    let name = "不明なユーザー";
-    let isAdmin = false;
+    let name = userCache[userId];
+    let isAdmin = userAdminCache[userId];
     
-    try {
-      if (!(userId in userCache) || !(userId in userAdminCache)) {   
+    // 万が一キャッシュに載っていないイレギュラーなユーザーIDが含まれていた場合のみ個別get
+    if (!name) {
+      try {
         const userSnapshot = await db.collection("users_random").doc(userId).get();
-    
+      
         if (userSnapshot.exists) {
           const userData = userSnapshot.data();
           userCache[userId] = userData.name || "名前未設定";
@@ -513,12 +550,12 @@ async function openReadByModal(readByList) {
           userCache[userId] = "不明なユーザー";
           userAdminCache[userId] = false;
         }
+        name = userCache[userId];
+        isAdmin = userAdminCache[userId];
+      } catch (e) {
+        console.error(e);
+        name = "不明なユーザー";
       }
-
-      name = userCache[userId];
-      isAdmin = userAdminCache[userId];
-    } catch (e) {
-      console.error(e);
     }
 
     const p = document.createElement("p");
