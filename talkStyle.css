@@ -31,6 +31,42 @@ a {
   display: none;
 }
 
+
+#loading-overlay,
+#no-active-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  
+  padding: 1rem;
+}
+
+#loading-overlay h1 {
+  font-size: 4rem;
+  color: white;
+  font-weight: normal;
+}
+#loading-overlay p,
+#no-active-overlay p {
+  font-size: 0.9rem;
+  color: white;
+}
+
+
+#loading-overlay.hidden,
+#no-active-overlay.hidden {
+  display: none;
+}
+
+
 /* --- アカウント設定ドロワー --- */
 .drawer-overlay {
   position: fixed;
