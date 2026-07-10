@@ -24,6 +24,8 @@ let currentRoomMembers = [];   // ★ 現在のルームのメンバーIDリス�
 // onSnapshotのリスナー解除用
 let memberSubscribers = [];
 
+let loadingOverlay;
+let noActiveOverlay;
 let drawerOverlay;
 let accountSettingsDrawer;
 let drawerCloseButton;
@@ -36,6 +38,9 @@ let newUsernameInput;
 let usernameMessage;
 
 document.addEventListener("DOMContentLoaded", () => {
+  loadingOverlay = document.getElementById("loading-overlay");
+  noActiveOverlay = document.getElementById("no-active-overlay");
+  
   drawerOverlay = document.getElementById("drawerOverlay");
   accountSettingsDrawer = document.getElementById("accountSettingsDrawer");
   drawerCloseButton = document.getElementById("drawerCloseButton");
@@ -78,18 +83,29 @@ document.addEventListener("DOMContentLoaded", () => {
           .doc(myUserId)
           .get();
         const userData = userSnapshot.data();
-        drawerUsername.textContent = userData.name;
-        if (userData.isAdmin) drawerUsername.classList.add("admin");
-        userCache[myUserId] = userData.name;
-        userAdminCache[myUserId] = userData.isAdmin;
 
-        myUid = userData.uid;
-        const talkId = getParmFromUrl("id");
+        if (userData.isActive) {
+          drawerUsername.textContent = userData.name;
+          if (userData.isAdmin) drawerUsername.classList.add("admin");
+          myUid = userData.uid;
 
-        // ★ メンバーのリアルタイム監視・キャッシュ化を開始
-        await setupMemberSnapshots(talkId);
+          userCache[myUserId] = userData.name;
+          userAdminCache[myUserId] = userData.isAdmin;
 
-        getAllTalkData(talkId);
+          const talkId = getParmFromUrl("id");
+          // ★ メンバーのリアルタイム監視・キャッシュ化を開始
+          await setupMemberSnapshots(talkId);
+
+          getAllTalkData(talkId);
+          
+          loadingOverlay.classList.add("hidden");
+      } else {
+        loadingOverlay.classList.add("hidden");
+        noActiveOverlay.classList.remove("hidden");
+        // window.location.href = "404.html";
+      }
+        
+        
       } else {
         console.log("logout");
         // ログアウト時にリスナーをすべて解除
