@@ -20,6 +20,8 @@ const db = firebase.firestore();
 let myUid = "";
 let myUserId = "";
 
+let loadingOverlay;
+let noActiveOverlay;
 let drawerOverlay;
 let accountSettingsDrawer;
 let drawerCloseButton;
@@ -31,6 +33,9 @@ let changeUsernameButton;
 let newUsernameInput;
 let usernameMessage;
 document.addEventListener("DOMContentLoaded", () => {
+  loadingOverlay = document.getElementById("loading-overlay");
+  noActiveOverlay = document.getElementById("no-active-overlay");
+  
   drawerOverlay = document.getElementById("drawerOverlay");
   accountSettingsDrawer = document.getElementById("accountSettingsDrawer");
   drawerCloseButton = document.getElementById("drawerCloseButton");
@@ -74,11 +79,20 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const userSnapshot = await db.collection("users_random").doc(myUserId).get();
       const userData = userSnapshot.data();
-      drawerUsername.textContent = userData.name;
-      if (userData.isAdmin) drawerUsername.classList.add("admin");
 
-      myUid = userData.uid;
-      getAllTalkData();
+      if (userData.isActive) {
+        drawerUsername.textContent = userData.name;
+        if (userData.isAdmin) drawerUsername.classList.add("admin");
+        myUid = userData.uid;
+        loadingOverlay.classList.add("hidden");
+        
+        getAllTalkData();
+      } else {
+        loadingOverlay.classList.add("hidden");
+        noActiveOverlay.classList.remove("hidden");
+        // window.location.href = "404.html";
+      }
+
     } else {
       console.log("logout");
       window.location.href = "./index.html";
