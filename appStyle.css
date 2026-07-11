@@ -286,6 +286,8 @@ button, input, span {
   padding: 0.8rem;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  gap: 10px;
 }
 #app-header .hidden {
   display: none;
