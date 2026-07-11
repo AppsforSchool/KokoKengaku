@@ -421,6 +421,9 @@ async function addMessage(talkId) {
         readBy: [],
         time: firebase.firestore.FieldValue.serverTimestamp()
       });
+    await db.collection("KokoKengaku").doc(talkId).update({
+      lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() // これを追加！
+    });
   }
   catch (error) {
     console.log(error);
