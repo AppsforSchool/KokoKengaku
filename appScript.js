@@ -178,73 +178,78 @@ function getAllTalkData() {
   const talkButtonArea = document.getElementById("talk-button-area");
   const talkButtonLoading = document.getElementById("talk-button-loading");
   
-  // 既存のリスナーがあれば一度解除（二重に監視するのを防ぐ）
   if (talkListenerUnsubscribe) {
     talkListenerUnsubscribe();
   }
 
   try {
-    // 自分が含まれるルームを監視（onSnapshot を使う）
     talkListenerUnsubscribe = db.collection("KokoKengaku")
       .where("members", "array-contains", myUserId)
       .onSnapshot(async (talkSnapshot) => {
         
-        // ユーザーの最新の lastChecked を取得するため、毎回ユーザーデータを読み直す
+        // ユーザーの最新の lastChecked を取得
         const userSnapshot = await db.collection("users_random").doc(myUserId).get();
         const userData = userSnapshot.data() || {};
         const lastCheckedMap = userData.lastChecked || {};
 
-        // 画面を一度クリア（リアルタイム更新時にボタンが重複しないようにする）
-        talkButtonArea.innerHTML = "";
-        
-        const fragment = document.createDocumentFragment();
-        
-        // 各ルームの処理（未読数カウント）を並列で実行
-        const promises = talkSnapshot.docs.map(async (talkDoc) => {
+        // 変化（追加・修正・削除）があった差分だけをループ処理する
+        talkSnapshot.docChanges().forEach(async (change) => {
+          const talkDoc = change.doc;
+          const roomId = talkDoc.id;
           const roomData = talkDoc.data();
           
-          const talkButton = document.createElement("div");
-          talkButton.classList.add("talk-button");
-          talkButton.addEventListener("click", () => {
-            window.location.href = `./talk.html?id=${talkDoc.id}`;
-          });
+          // 1. 新しくルームが追加された、または初回読み込みの場合
+          if (change.type === "added") {
+            // すでに同じIDのボタンが画面にあれば作成しない（重複防止）
+            if (document.getElementById(`room-${roomId}`)) return;
 
-          const titleArea = document.createElement("p");
-          titleArea.classList.add("title");
-          titleArea.textContent = roomData.title;
-          
-          const lastCheckedTime = lastCheckedMap[talkDoc.id] ? lastCheckedMap[talkDoc.id].toDate() : new Date(0);
+            const talkButton = document.createElement("div");
+            talkButton.classList.add("talk-button");
+            talkButton.id = `room-${roomId}`; // 部屋ごとのIDを付与
+            talkButton.dataUpdatedAt = roomData.lastUpdatedAt; // 更新日時を記憶させておく
+            talkButton.addEventListener("click", () => {
+              window.location.href = `./talk.html?id=${roomId}`;
+            });
 
-          // 未読数の取得
-          const unreadSnapshot = await db.collection("KokoKengaku")
-            .doc(talkDoc.id)
-            .collection("talk")
-            .where("time", ">", lastCheckedTime)
-            .get();
+            const titleArea = document.createElement("p");
+            titleArea.classList.add("title");
+            titleArea.textContent = roomData.title;
+            
+            // 未読数を入れる器（pタグ）をID付きで作っておく
+            const newMessageArea = document.createElement("p");
+            newMessageArea.classList.add("new-message");
+            newMessageArea.id = `unread-${roomId}`;
+            newMessageArea.textContent = "新着: 取得中...";
 
-          const unreadCount = unreadSnapshot.size;
-          
-          const newMessageArea = document.createElement("p");
-          newMessageArea.classList.add("new-message");
-          if (unreadCount === 0) {
-            newMessageArea.classList.add("no-message");
+            talkButton.appendChild(titleArea);
+            talkButton.appendChild(newMessageArea);
+            talkButtonArea.appendChild(talkButton); // 画面に直接追加
+
+            // この部屋の未読数を計算して書き換える
+            updateSingleRoomUnread(roomId, lastCheckedMap[roomId]);
           }
-          newMessageArea.textContent = `新着: ${unreadCount}件`;
           
-          talkButton.appendChild(titleArea);
-          talkButton.appendChild(newMessageArea);
-          
-          return talkButton;
+          // 2. メッセージが届くなどして、ルームの情報が更新された場合
+          if (change.type === "modified") {
+            const talkButton = document.getElementById(`room-${roomId}`);
+            if (talkButton) {
+              // タイトルが変わっていれば更新（必要なければ消してもOKです）
+              const titleArea = talkButton.querySelector(".title");
+              if (titleArea) titleArea.textContent = roomData.title;
+
+              // ★ ここがポイント：未読数だけをピンポイントで数え直して更新する
+              updateSingleRoomUnread(roomId, lastCheckedMap[roomId]);
+            }
+          }
+
+          // 3. ルーム自体が削除された場合
+          if (change.type === "removed") {
+            const talkButton = document.getElementById(`room-${roomId}`);
+            if (talkButton) talkButton.remove();
+          }
         });
 
-        // すべてのルームの未読チェックを並列で行う
-        const talkButtons = await Promise.all(promises);
-        
-        // 組み立てたボタンを画面に追加
-        talkButtons.forEach(button => fragment.appendChild(button));
-        talkButtonArea.appendChild(fragment);
-
-        // ローディングを非表示にしてエリアを表示
+        // 初回のローディング非表示処理
         talkButtonLoading.classList.add("hidden");
         talkButtonArea.classList.remove("hidden");
         
@@ -255,6 +260,35 @@ function getAllTalkData() {
   } catch (error) {
     console.error("データ取得エラー:", error);
     alert(error);
+  }
+}
+
+// ★ 特定の1部屋だけ未読数を数え直して画面を書き換える関数
+async function updateSingleRoomUnread(roomId, lastCheckedTimestamp) {
+  const newMessageArea = document.getElementById(`unread-${roomId}`);
+  if (!newMessageArea) return;
+
+  const lastCheckedTime = lastCheckedTimestamp ? lastCheckedTimestamp.toDate() : new Date(0);
+
+  try {
+    // 対象の部屋のメッセージ数（未読）だけをカウント
+    const unreadSnapshot = await db.collection("KokoKengaku")
+      .doc(roomId)
+      .collection("talk")
+      .where("time", ">", lastCheckedTime)
+      .get();
+
+    const unreadCount = unreadSnapshot.size;
+
+    // テキストとクラス（見た目）をピンポイントで更新
+    newMessageArea.textContent = `新着: ${unreadCount}件`;
+    if (unreadCount === 0) {
+      newMessageArea.classList.add("no-message");
+    } else {
+      newMessageArea.classList.remove("no-message");
+    }
+  } catch (error) {
+    console.error(`未読数更新エラー [Room: ${roomId}]:`, error);
   }
 }
 
