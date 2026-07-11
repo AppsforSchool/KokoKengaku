@@ -219,7 +219,7 @@ function getAllTalkData() {
             const newMessageArea = document.createElement("p");
             newMessageArea.classList.add("new-message");
             newMessageArea.id = `unread-${roomId}`;
-            newMessageArea.textContent = "新着: 取得中...";
+            newMessageArea.textContent = "取得中...";
 
             talkButton.appendChild(titleArea);
             talkButton.appendChild(newMessageArea);
