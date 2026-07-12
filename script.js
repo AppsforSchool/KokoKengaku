@@ -1,12 +1,17 @@
-import { app } from "./firebase-config.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-const auth = getAuth(app);
+// Firebase 設定
+const firebaseConfig = {
+  apiKey: "AIzaSyAqIiNj0N4WruPSOkWbeo5gxzsNyeMkuLo",
+  authDomain: "appsforschool-study.firebaseapp.com",
+  projectId: "appsforschool-study",
+  storageBucket: "appsforschool-study.firebasestorage.app",
+  messagingSenderId: "740735293440",
+  appId: "1:740735293440:web:982702b6d53aaa18ec60e5"
+};
 
 // Firebase 初期化とサービス取得
-// window.app = firebase.initializeApp(firebaseConfig);
-// window.auth = firebase.auth();
-// window.db = firebase.firestore();
+window.app = firebase.initializeApp(firebaseConfig);
+window.auth = firebase.auth();
+window.db = firebase.firestore();
 
 let loadingOverlay;
 document.addEventListener("DOMContentLoaded", () => {
@@ -152,7 +157,7 @@ const handleLogin = async () => {
 
   try {
     const loginEmail = `${idInput.value}@appsforschool.com`;
-    await signInWithEmailAndPassword(auth, loginEmail, passwordInput.value);
+    await auth.signInWithEmailAndPassword(loginEmail, passwordInput.value);
   } catch (error) {
     errorMessage.textContent = 'ログインに失敗しました。IDとパスワードを確認してください。';
     console.error("ログインエラー:", error);
