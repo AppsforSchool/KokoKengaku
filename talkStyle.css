@@ -451,7 +451,7 @@ a {
   line-height: 1.2;
 }
 .message .message-text .underline {
-  background: linear-gradient(transparent 50%, rgba(var(--primary-rgb), 0.5) 30%);
+  background: linear-gradient(transparent 70%, rgba(var(--primary-rgb), 0.5) 70%);
 }
 
 /* --- メッセージ送信エリア --- */
