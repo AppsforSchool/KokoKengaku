@@ -350,9 +350,11 @@ function sanitizeHtmlToOnlyLinks(htmlString) {
   const childNodes = Array.from(doc.body.childNodes);
 
   childNodes.forEach(node => {
+    // 1. テキストノードの処理
     if (node.nodeType === Node.TEXT_NODE) {
       box.appendChild(document.createTextNode(node.textContent));
     } 
+    // 2. Aタグの処理
     else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
       const safeLink = document.createElement('a');
       safeLink.textContent = node.textContent;
@@ -362,13 +364,23 @@ function sanitizeHtmlToOnlyLinks(htmlString) {
       safeLink.setAttribute('rel', 'noopener noreferrer');
       safeLink.classList.add('chat-link');
       box.appendChild(safeLink);
-    }
+    } 
+    // 3. UNDERLINEタグの処理（追加部分）
+    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'UNDERLINE') {
+      const span = document.createElement('span');
+      span.classList.add('underline');
+      span.textContent = node.textContent;
+      box.appendChild(span);
+    } 
+    // 4. その他の要素ノードの処理（中身のテキストのみ抽出）
     else if (node.nodeType === Node.ELEMENT_NODE) {
       box.appendChild(document.createTextNode(node.textContent));
     }
   });
+
   return box;
 }
+
 
 function getParmFromUrl(parm) {
   const params = new URLSearchParams(window.location.search);
