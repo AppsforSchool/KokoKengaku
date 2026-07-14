@@ -347,46 +347,72 @@ function sanitizeHtmlToOnlyLinks(htmlString) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlString, 'text/html');
   const box = document.createDocumentFragment();
-  const childNodes = Array.from(doc.body.childNodes);
 
-  childNodes.forEach(node => {
-    // 1. テキストノードの処理
+  // 再帰的にノードを処理するヘルパー関数
+  function processNode(node) {
+    // 1. テキストノードの場合：そのままテキストノードを返す
     if (node.nodeType === Node.TEXT_NODE) {
-      box.appendChild(document.createTextNode(node.textContent));
-    } 
-    // 2. Aタグの処理
-    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'A') {
-      const safeLink = document.createElement('a');
-      safeLink.textContent = node.textContent;
-      const rawHref = node.getAttribute('href') || '#';
-      safeLink.setAttribute('href', rawHref);
-      safeLink.setAttribute('target', '_blank');
-      safeLink.setAttribute('rel', 'noopener noreferrer');
-      safeLink.classList.add('chat-link');
-      box.appendChild(safeLink);
-    } 
-    // 3. UNDERLINEタグの処理（追加部分）
-    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'UNDERLINE') {
-      const span = document.createElement('span');
-      span.classList.add('underline');
-      span.textContent = node.textContent;
-      box.appendChild(span);
-    } 
-    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LARGE') {
-      const span = document.createElement('span');
-      span.classList.add('large');
-      span.textContent = node.textContent;
-      box.appendChild(span);
+      return document.createTextNode(node.textContent);
     }
-    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'MAINCOLOR') {
-      const span = document.createElement('span');
-      span.classList.add('main-color');
-      span.textContent = node.textContent;
-      box.appendChild(span);
+
+    // 要素ノード（ELEMENT_NODE）の処理
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toUpperCase();
+      let resultElement = null;
+
+      // 各タグに応じた要素の生成
+      if (tagName === 'A') {
+        resultElement = document.createElement('a');
+        const rawHref = node.getAttribute('href') || '#';
+        resultElement.setAttribute('href', rawHref);
+        resultElement.setAttribute('target', '_blank');
+        resultElement.setAttribute('rel', 'noopener noreferrer');
+        resultElement.classList.add('chat-link');
+      } 
+      else if (tagName === 'UNDERLINE') {
+        resultElement = document.createElement('span');
+        resultElement.classList.add('underline');
+      } 
+      else if (tagName === 'LARGE') {
+        resultElement = document.createElement('span');
+        resultElement.classList.add('large');
+      } 
+      else if (tagName === 'MAINCOLOR') {
+        resultElement = document.createElement('span');
+        resultElement.classList.add('main-color');
+      }
+
+      if (resultElement) {
+        // 許可されたタグの場合：子ノードを再帰的に処理して自身に追加する
+        node.childNodes.forEach(child => {
+          const processedChild = processNode(child);
+          if (processedChild) {
+            resultElement.appendChild(processedChild);
+          }
+        });
+        return resultElement;
+      } else {
+        // 許可されていない未知のタグ（例: <div>, <p> など）の場合：
+        // タグ自体は無視し、中身の子ノード（テキストや許可タグ）だけを平坦化して返す
+        const fragment = document.createDocumentFragment();
+        node.childNodes.forEach(child => {
+          const processedChild = processNode(child);
+          if (processedChild) {
+            fragment.appendChild(processedChild);
+          }
+        });
+        return fragment;
+      }
     }
-    // 4. その他の要素ノードの処理（中身のテキストのみ抽出）
-    else if (node.nodeType === Node.ELEMENT_NODE) {
-      box.appendChild(document.createTextNode(node.textContent));
+
+    return null;
+  }
+
+  // ルート直下の子ノードを順次処理して documentFragment に追加
+  Array.from(doc.body.childNodes).forEach(node => {
+    const processed = processNode(node);
+    if (processed) {
+      box.appendChild(processed);
     }
   });
 
