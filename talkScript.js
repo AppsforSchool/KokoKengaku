@@ -372,6 +372,18 @@ function sanitizeHtmlToOnlyLinks(htmlString) {
       span.textContent = node.textContent;
       box.appendChild(span);
     } 
+    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LARGE') {
+      const span = document.createElement('span');
+      span.classList.add('large');
+      span.textContent = node.textContent;
+      box.appendChild(span);
+    }
+    else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'MAINCOLOR') {
+      const span = document.createElement('span');
+      span.classList.add('main-color');
+      span.textContent = node.textContent;
+      box.appendChild(span);
+    }
     // 4. その他の要素ノードの処理（中身のテキストのみ抽出）
     else if (node.nodeType === Node.ELEMENT_NODE) {
       box.appendChild(document.createTextNode(node.textContent));
