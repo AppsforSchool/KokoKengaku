@@ -454,7 +454,7 @@ a {
   background: linear-gradient(transparent 70%, rgba(var(--primary-rgb), 0.5) 70%);
 }
 .message .message-text .large {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
 }
 .message .message-text .main-color {
   color: var(--primary);
