@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   newMessageChangeButton.addEventListener("click", async () => {
-    await newMessageChange(messageId, newMessageInput.value);
+    await newMessageChange(messageId, newUserIdInput.value, newMessageInput.value);
   });
 
   messageDeleteButton.addEventListener("click", async () => {
@@ -688,13 +688,14 @@ function openEditModal(thisMessageId, messageUserId, messageText) {
   
 }
 
-async function newMessageChange(messageId, newMessage) {
+async function newMessageChange(messageId, newUserId, newMessage) {
   try {
     const docRef = db.collection("KokoKengaku")
       .doc(talkId)
       .collection("talk")
       .doc(messageId);
     await docRef.update({
+      userId: newUserId,
       message: newMessage
     });
     alert("変更しました。");
