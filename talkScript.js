@@ -687,7 +687,20 @@ function openEditModal(thisMessageId, messageText) {
 }
 
 async function newMessageChange(messageId, newMessage) {
-
+  try {
+    const docRef = db.collection("KokoKengaku")
+      .doc(talkId)
+      .collection("talk")
+      .doc(messageId);
+    await docRef.update({
+      message: newMessage
+    });
+    alert("変更しました。");
+  }
+  catch (error) {
+    alert(error);
+    console.error(error);
+  }
 }
 
 async function messageDelete(messageId) {
