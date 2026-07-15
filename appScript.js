@@ -19,6 +19,7 @@ const db = firebase.firestore();
 
 let myUid = "";
 let myUserId = "";
+let meIsAdmin = false;
 
 let loadingOverlay;
 let noActiveOverlay;
@@ -82,7 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (userData.isActive) {
         drawerUsername.textContent = userData.name;
-        if (userData.isAdmin) drawerUsername.classList.add("admin");
+        meIsAdmin = userData.isAdmin;
+        if (meIsAdmin) drawerUsername.classList.add("admin");
         myUid = userData.uid;
         loadingOverlay.classList.add("hidden");
         
@@ -183,9 +185,14 @@ function getAllTalkData() {
   }
 
   try {
-    talkListenerUnsubscribe = db.collection("KokoKengaku")
-      .where("members", "array-contains", myUserId)
-      .onSnapshot(async (talkSnapshot) => {
+    let query = db.collection("KokoKengaku");
+    
+    if (!meIsAdmin) {
+      // 一般ユーザーの場合は、自分がメンバーに含まれるルームのみに絞り込む
+      query = query.where("members", "array-contains", myUserId);
+    }
+    
+    talkListenerUnsubscribe = query.onSnapshot(async (talkSnapshot) => {
         
         // ユーザーの最新の lastChecked を取得
         const userSnapshot = await db.collection("users_random").doc(myUserId).get();
