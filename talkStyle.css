@@ -30,6 +30,12 @@ a {
 .hidden {
   display: none;
 }
+.split-line {
+  display: flex;
+  width: 100%;
+  border-bottom: 1.5px solid #ddd;
+  margin: 1rem auto;
+}
 
 
 #loading-overlay,
@@ -268,6 +274,43 @@ a {
   max-height: 80vh;
   height: auto;
 }
+
+#message-delete-button,
+#new-message-change-button {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  box-sizing: border-box;
+  background-color: var(--primary);
+  color: #fff; 
+  border: none;
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
+  transition: all 0.3s ease;
+}
+#new-message-input {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 1.0rem;
+  width: 100%;
+  padding: 0.5rem;
+  margin: 0 10px 0 0;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+#new-message-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.25);
+  outline: none;
+}
+
 
 /* --- ヘッダー領域 --- */
 #app-header {
