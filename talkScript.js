@@ -16,6 +16,8 @@ let myUserId = "";
 let myUid = "";
 let meIsAdmin = false;
 
+let talkId;
+
 // キャッシュ用オブジェクト
 let userCache = {};
 let userAdminCache = {};
@@ -94,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
           userCache[myUserId] = userData.name;
           userAdminCache[myUserId] = userData.isAdmin;
 
-          const talkId = getParmFromUrl("id");
+          talkId = getParmFromUrl("id");
           // ★ メンバーのリアルタイム監視・キャッシュ化を開始
           await setupMemberSnapshots(talkId);
 
