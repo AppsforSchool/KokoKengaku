@@ -323,7 +323,7 @@ async function getAllTalkData(talkId) {
           editSpan.textContent = `編集`;
           editSpan.style.textDecoration = 'underline';
           editSpan.addEventListener("click", () => {
-            openEditModal(messageData.message);
+            openEditModal(messageData.id, messageData.message);
           });
           
           messageUser.appendChild(senderNameSpan);
@@ -651,6 +651,7 @@ async function openReadByModal(readByList) {
 }
 
 
+let messageId;
 let editModal;
 let editModalClose;
 let newMessageInput, newMessageChangeButton, messageDeleteButton;
@@ -664,10 +665,19 @@ document.addEventListener("DOMContentLoaded", () => {
   editModalClose.addEventListener("click", () => {
     editModal.classList.add("hidden");
   });
+
+  newMessageChangeButton.addEventListener("click", async () => {
+    await newMessageChange(messageId, newMessageInput.value);
+  });
 });
 
-function openEditModal(messageText) {
+function openEditModal(thisMessageId, messageText) {
+  messageId = thisMessageId;
   newMessageInput.value = messageText;
   editModal.classList.remove("hidden");
   
+}
+
+async function newMessageChange(messageId, newMessage) {
+
 }
