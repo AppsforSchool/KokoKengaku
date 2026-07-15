@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
   editModalClose = document.getElementById("edit-modal-close");
   newMessageInput = document.getElementById("new-message-input");
   newMessageChangeButton = document.getElementById("new-message-change-button");
-  messageDeleteButton = document.getWlementById("message-delete-button");
+  messageDeleteButton = document.getElementById("message-delete-button");
   
   editModalClose.addEventListener("click", () => {
     editModal.classList.add("hidden");
