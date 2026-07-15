@@ -317,9 +317,18 @@ async function getAllTalkData(talkId) {
           if (isAdmin) {
             senderNameSpan.classList.add("admin");
           }
+          const editSpan = document.createElement("span");
+          editSpan.textContent = `編集`;
+          editSpan.style.textDecoration = 'underline';
+          editSpan.addEventListener("click", () => {
+            // openReadByModal(readByList);
+          });
+          
           messageUser.appendChild(senderNameSpan);
           messageUser.appendChild(displayTimeSpan);
           messageUser.appendChild(readSpan);
+          messageUser.appendChild(document.createTextNode(" "));
+          messageUser.appendChild(editSpan);
           message.appendChild(messageUser);
 
           const messageText = document.createElement("p");
