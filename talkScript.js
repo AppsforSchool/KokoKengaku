@@ -669,6 +669,10 @@ document.addEventListener("DOMContentLoaded", () => {
   newMessageChangeButton.addEventListener("click", async () => {
     await newMessageChange(messageId, newMessageInput.value);
   });
+
+  messageDeleteButton.addEventListener("click", async () => {
+    await messageDelete(messageId);
+  });
 });
 
 function openEditModal(thisMessageId, messageText) {
@@ -680,4 +684,19 @@ function openEditModal(thisMessageId, messageText) {
 
 async function newMessageChange(messageId, newMessage) {
 
+}
+
+async function messageDelete(messageId) {
+  try {
+    db.collection("KokoKengaku")
+      .doc(talkId)
+      .collection("talk")
+      .doc(messageId)
+      .delete();
+    editModal.classList.add("hidden");
+    alert("削除しました。");
+  } catch (error) {
+    alert(error);
+    console.error(error);
+  }
 }
