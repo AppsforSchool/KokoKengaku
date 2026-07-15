@@ -673,7 +673,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   messageDeleteButton.addEventListener("click", async () => {
-    await messageDelete(messageId);
+    if (window.confirm('本当に削除しますか？')) {
+      await messageDelete(messageId);
+    }
   });
 });
 
@@ -696,7 +698,7 @@ async function messageDelete(messageId) {
       .doc(messageId)
       .delete();
     editModal.classList.add("hidden");
-    alert(messageId);
+    // alert(messageId);
     alert("削除しました。");
   } catch (error) {
     alert(error);
