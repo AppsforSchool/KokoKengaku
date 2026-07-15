@@ -323,7 +323,7 @@ async function getAllTalkData(talkId) {
           editSpan.textContent = `編集`;
           editSpan.style.textDecoration = 'underline';
           editSpan.addEventListener("click", () => {
-            openEditModal(sanitizeHtmlToOnlyLinks(messageData.message));
+            openEditModal(messageData.message);
           });
           
           messageUser.appendChild(senderNameSpan);
