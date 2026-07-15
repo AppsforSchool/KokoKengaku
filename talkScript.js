@@ -325,7 +325,7 @@ async function getAllTalkData(talkId) {
           editSpan.textContent = `編集`;
           editSpan.style.textDecoration = 'underline';
           editSpan.addEventListener("click", () => {
-            openEditModal(talkDoc.id, messageData.message);
+            openEditModal(talkDoc.id, messageData.userId, messageData.message);
           });
           
           messageUser.appendChild(senderNameSpan);
@@ -656,10 +656,11 @@ async function openReadByModal(readByList) {
 let messageId;
 let editModal;
 let editModalClose;
-let newMessageInput, newMessageChangeButton, messageDeleteButton;
+let newUserIdInput, newMessageInput, newMessageChangeButton, messageDeleteButton;
 document.addEventListener("DOMContentLoaded", () => {
   editModal = document.getElementById("edit-modal");
   editModalClose = document.getElementById("edit-modal-close");
+  newUserIdInput = document.getElementById("new-userId-input");
   newMessageInput = document.getElementById("new-message-input");
   newMessageChangeButton = document.getElementById("new-message-change-button");
   messageDeleteButton = document.getElementById("message-delete-button");
@@ -679,8 +680,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function openEditModal(thisMessageId, messageText) {
+function openEditModal(thisMessageId, messageUserId, messageText) {
   messageId = thisMessageId;
+  newUserIdInput.value = messageUserId;
   newMessageInput.value = messageText;
   editModal.classList.remove("hidden");
   
