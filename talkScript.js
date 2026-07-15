@@ -325,7 +325,7 @@ async function getAllTalkData(talkId) {
           editSpan.textContent = `編集`;
           editSpan.style.textDecoration = 'underline';
           editSpan.addEventListener("click", () => {
-            openEditModal(messageData.id, messageData.message);
+            openEditModal(talkDoc.id, messageData.message);
           });
           
           messageUser.appendChild(senderNameSpan);
