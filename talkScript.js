@@ -14,6 +14,7 @@ const db = firebase.firestore();
 
 let myUserId = "";
 let myUid = "";
+let meIsAdmin = false;
 
 // キャッシュ用オブジェクト
 let userCache = {};
@@ -86,7 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (userData.isActive) {
           drawerUsername.textContent = userData.name;
-          if (userData.isAdmin) drawerUsername.classList.add("admin");
+          meIsAdmin = userData.isAdmin;
+          if (meIsAdmin) drawerUsername.classList.add("admin");
           myUid = userData.uid;
 
           userCache[myUserId] = userData.name;
@@ -327,8 +329,10 @@ async function getAllTalkData(talkId) {
           messageUser.appendChild(senderNameSpan);
           messageUser.appendChild(displayTimeSpan);
           messageUser.appendChild(readSpan);
-          messageUser.appendChild(document.createTextNode(" "));
-          messageUser.appendChild(editSpan);
+          if (meIsAdmin) {
+            messageUser.appendChild(document.createTextNode(" "));
+            messageUser.appendChild(editSpan);
+          }
           message.appendChild(messageUser);
 
           const messageText = document.createElement("p");
