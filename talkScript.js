@@ -317,7 +317,7 @@ async function getAllTalkData(talkId) {
           senderNameSpan.textContent = `${senderName} `;
           senderNameSpan.classList.add("clickable-user");
           senderNameSpan.style.cursor = 'pointer'; // カーソルをポインターに
-          senderNameSpan.style.textDecoration = 'underline'; // リンク風にする場合
+          // senderNameSpan.style.textDecoration = 'underline'; // リンク風にする場合
           
           // タップ（クリック）されたらプロフィールモーダルを開く
           senderNameSpan.addEventListener("click", () => {
@@ -562,7 +562,7 @@ function getMember(talkId) {
     nameSpan.classList.add("member-name", "clickable-user");
     nameSpan.textContent = memberName;
     nameSpan.style.cursor = 'pointer'; // カーソルをポインターに
-    nameSpan.style.textDecoration = 'underline'; // リンク風にする場合
+    // nameSpan.style.textDecoration = 'underline'; // リンク風にする場合
     
     // タップ（クリック）されたらプロフィールモーダルを開く
     nameSpan.addEventListener("click", () => {
