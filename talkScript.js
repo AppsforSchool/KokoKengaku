@@ -857,7 +857,7 @@ async function openProfileModal(userId, startEditMode = false) {
       profileText.textContent = userData.profileText || "ステータスメッセージはありません。";
 
       // ★ 自分のプロフィールだった場合のみ、編集ボタンを表示する
-      if (userId === myUserId) {
+      if (meIsAdmin || userId === myUserId) {
         profileEditButton.classList.remove("hidden");
         
         // ドロワーから来たなどの場合は即座に編集モードに移行する
