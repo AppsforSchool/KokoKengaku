@@ -400,7 +400,7 @@ a {
 }
 #profile-name-input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.25);
   outline: none;
 }
 
@@ -430,7 +430,7 @@ a {
 /* 通常表示のとき（枠線を薄く、背景を優しく） */
 #profile-text {
   background-color: #f9f9f9;
-  border: 1.5px solid #eee;
+  border: 2px solid #eee;
   text-align: left;
   white-space: pre-wrap;
 }
@@ -441,7 +441,7 @@ a {
   border: 2px solid #ddd;
   text-align: left;
   line-height: 1.6;
-  resize: vertical; /* ユーザーが手動で縦に伸ばせるように */
+  /* resize: vertical; /* ユーザーが手動で縦に伸ばせるように */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   display: block;
 }
@@ -450,7 +450,7 @@ a {
 }
 #profile-text-edit:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.25);
   outline: none;
 }
 #profile-text-edit.hidden {
