@@ -315,6 +315,15 @@ async function getAllTalkData(talkId) {
 
           const senderNameSpan = document.createElement("span");
           senderNameSpan.textContent = `${senderName} `;
+          senderNameSpan.classList.add("clickable-user");
+          senderNameSpan.style.cursor = 'pointer'; // カーソルをポインターに
+          senderNameSpan.style.textDecoration = 'underline'; // リンク風にする場合
+          
+          // タップ（クリック）されたらプロフィールモーダルを開く
+          senderNameSpan.addEventListener("click", () => {
+            openProfileModal(messageUserId);
+          });
+          
           const displayTimeSpan = document.createElement("span");
           displayTimeSpan.textContent = `${displayTime} `;
           messageUser.classList.add("message-user");
@@ -548,9 +557,18 @@ function getMember(talkId) {
     if (isAdmin) memberElement.classList.add("admin");
 
     // 名前
+    // 名前
     const nameSpan = document.createElement("span");
-    nameSpan.classList.add("member-name");
+    nameSpan.classList.add("member-name", "clickable-user");
     nameSpan.textContent = memberName;
+    nameSpan.style.cursor = 'pointer'; // カーソルをポインターに
+    nameSpan.style.textDecoration = 'underline'; // リンク風にする場合
+    
+    // タップ（クリック）されたらプロフィールモーダルを開く
+    nameSpan.addEventListener("click", () => {
+      openProfileModal(userId);
+    });
+    
     memberElement.appendChild(nameSpan);
 
     // 自分が管理者かつデータがある場合のみ、右側に最終確認時間を追加
@@ -749,5 +767,56 @@ async function messageDelete(messageId) {
   } catch (error) {
     alert(error);
     console.error(error);
+  }
+}
+
+let profileModal;
+let profileModalClose;
+let profileName;
+let profileText;
+
+document.addEventListener("DOMContentLoaded", () => {
+  // 追加要素の取得
+  profileModal = document.getElementById("profile-modal");
+  profileModalClose = document.getElementById("profile-modal-close");
+  profileName = document.getElementById("profile-name");
+  profileText = document.getElementById("profile-text");
+
+  // 閉じるボタンのイベント
+  profileModalClose.addEventListener("click", () => {
+    profileModal.classList.add("hidden");
+  });
+});
+
+// プロフィールモーダルを開いてFirebaseから最新のステメ等を取得する関数
+async function openProfileModal(userId) {
+  profileName.textContent = "取得中...";
+  profileText.textContent = "取得中...";
+  profileName.classList.remove("admin"); // 一旦リセット
+  profileModal.classList.remove("hidden");
+
+  try {
+    const userSnapshot = await db.collection("users_random").doc(userId).get();
+    if (userSnapshot.exists) {
+      const userData = userSnapshot.data();
+      profileName.textContent = userData.name || "名前未設定";
+      
+      // 管理者ならレインボーのクラスを追加
+      if (userData.isAdmin) {
+        profileName.classList.add("admin");
+      }
+
+      userCache[userId] = userData.name || "名前未設定";
+      userAdminCache[userId] = userData.isAdmin || false;
+
+      profileText.textContent = userData.profileText || "ステータスメッセージはありません。";
+    } else {
+      profileName.textContent = "不明なユーザー";
+      profileText.textContent = "";
+    }
+  } catch (error) {
+    console.error("プロフィール取得エラー:", error);
+    profileName.textContent = "エラー";
+    profileText.textContent = "プロフィールの取得に失敗しました。";
   }
 }
