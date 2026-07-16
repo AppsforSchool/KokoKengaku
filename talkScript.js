@@ -133,7 +133,7 @@ async function setupMemberSnapshots(talkId) {
     const memberUserIds = roomData.members || [];
     currentRoomMembers = memberUserIds; // ★ ルームに所属するメンバーID一覧を保持
 
-    // 既存のリスナーがあれば念のため解除
+    // 既存 of リスナーがあれば念のため解除
     memberSubscribers.forEach(unsub => unsub());
     memberSubscribers = [];
 
@@ -706,8 +706,9 @@ async function messageDelete(messageId) {
 let profileModal;
 let profileModalClose;
 let profileName;
+let profileNameInput; // 追加：編集用の名前入力欄
 let profileText;
-let profileTextEdit;
+let profileTextEdit;  // 追加：編集用の自己紹介テキストエリア
 // --- 追加：プロフィールの編集用変数 ---
 let profileEditButton;
 let isProfileEditing = false; // 編集モード中かどうかのフラグ
@@ -718,6 +719,7 @@ document.addEventListener("DOMContentLoaded", () => {
   profileModal = document.getElementById("profile-modal");
   profileModalClose = document.getElementById("profile-modal-close");
   profileName = document.getElementById("profile-name");
+  profileNameInput = document.getElementById("profile-name-input"); // 既存DOMからあらかじめ取得
   profileText = document.getElementById("profile-text");
   profileTextEdit = document.getElementById('profile-text-edit');
   profileEditButton = document.getElementById("profile-edit-button");
@@ -739,6 +741,11 @@ function resetProfileEditMode() {
     profileEditButton.textContent = "プロフィールを編集";
     profileEditButton.disabled = false;
   }
+  // 表示状態をノーマルに戻し、編集用を隠す
+  if (profileName) profileName.classList.remove("hidden");
+  if (profileNameInput) profileNameInput.classList.add("hidden");
+  if (profileText) profileText.classList.remove("hidden");
+  if (profileTextEdit) profileTextEdit.classList.add("hidden");
 }
 
 // 編集ボタン・保存ボタンが押された時の処理
@@ -759,24 +766,19 @@ async function handleProfileEditOrSave() {
       currentName = "";
     }
 
-    // 名前の親コンテナを取得して input 要素に置き換える
-    const nameContainer = document.getElementById("profile-name-container");
-    nameContainer.innerHTML = `<input type="text" id="profile-name-input" style="width: 100%; font-size: 1.2rem; font-weight: bold; padding: 4px; box-sizing: border-box;">`;
-    document.getElementById("profile-name-input").value = currentName;
+    // --- 【改善ポイント】中のHTMLを書き換えるのではなく、事前に配置された要素をスイッチする ---
+    profileName.classList.add("hidden");
+    profileNameInput.classList.remove("hidden");
+    profileNameInput.value = currentName;
 
-    // profile-text の中身を textarea に置き換える
-    // profileText.innerHTML = `<textarea id="profile-textarea" rows="4" style="width: 100%; box-sizing: border-box; padding: 4px;"></textarea>`;
-    // document.getElementById("profile-textarea").value = currentText;
     profileText.classList.add("hidden");
     profileTextEdit.classList.remove("hidden");
+    profileTextEdit.value = currentText;
+
   } else {
     // 【保存処理】
-    const nameInput = document.getElementById("profile-name-input");
-    const textarea = document.getElementById("profile-textarea");
-    if (!nameInput || !textarea) return;
-
-    const newName = nameInput.value.trim();
-    const newProfileText = textarea.value.trim();
+    const newName = profileNameInput.value.trim();
+    const newProfileText = profileTextEdit.value.trim();
 
     if (!newName) {
       alert("ユーザーネームを入力してください。");
@@ -802,18 +804,16 @@ async function handleProfileEditOrSave() {
       // 各UIテキストのリアルタイム更新
       drawerUsername.textContent = newName;
       
-      // 表示を通常のテキストに戻す
-      const nameContainer = document.getElementById("profile-name-container");
-      nameContainer.innerHTML = `<p id="profile-name">${newName}</p>`;
-      profileName = document.getElementById("profile-name"); // グローバル参照を更新
+      // 通常時のテキスト要素へ反映させて復元
+      profileName.textContent = newName;
+      profileText.textContent = newProfileText || "ステータスメッセージはありません。";
 
       const userSnapshot = await db.collection("users_random").doc(currentProfileUserId).get();
       if (userSnapshot.exists && userSnapshot.data().isAdmin) {
         profileName.classList.add("admin");
+      } else {
+        profileName.classList.remove("admin");
       }
-      profileText.classList.remove("hidden");
-      profileTextEdit.classList.add("hidden");
-      profileText.textContent = newProfileText || "ステータスメッセージはありません。";
       
       resetProfileEditMode();
       alert("プロフィールを保存しました。");
@@ -832,11 +832,8 @@ async function openProfileModal(userId, startEditMode = false) {
   currentProfileUserId = userId; // 現在開いているユーザーIDを保持
   resetProfileEditMode();       // 編集状態を初期化
 
-  // DOMをノーマル表示のHTML構造に一回戻す
-  const nameContainer = document.getElementById("profile-name-container");
-  nameContainer.innerHTML = `<p id="profile-name">取得中...</p>`;
-  profileName = document.getElementById("profile-name"); // グローバル参照を更新
-
+  // DOMを初期表示に戻す
+  profileName.textContent = "取得中...";
   profileText.textContent = "取得中...";
   profileName.classList.remove("admin"); // 一旦リセット
   
