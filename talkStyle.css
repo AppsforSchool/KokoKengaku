@@ -479,6 +479,9 @@ a {
   transform: translateY(1px);
   box-shadow: 0 2px 4px rgba(var(--primary-rgb), 0.25);
 }
+#profile-edit-button.hidden  {
+  display: hidden;
+}
 
 
 /* --- ヘッダー領域 --- */
