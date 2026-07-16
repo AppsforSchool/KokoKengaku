@@ -684,6 +684,12 @@ function openEditModal(thisMessageId, messageUserId, messageText) {
   messageId = thisMessageId;
   newUserIdInput.value = messageUserId;
   newMessageInput.value = messageText;
+
+  if (!meIsAdmin) {
+    newUserIdInput.disabled = true;
+    messageDeleteButton.disabled = true;
+  }
+  
   editModal.classList.remove("hidden");
   
 }
