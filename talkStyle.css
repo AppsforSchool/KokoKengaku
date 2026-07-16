@@ -294,6 +294,11 @@ a {
   box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
   transition: all 0.3s ease;
 }
+#message-delete-button:disabled {
+  background-color: #ccc;
+  border: none;
+  box-shadow: none;
+}
 #new-userId-input {
   font-family: "BIZ UDGothic", sans-serif;
   font-weight: 700;
