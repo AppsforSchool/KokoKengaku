@@ -386,15 +386,6 @@ a {
   word-break: break-all;
 }
 
-/* ユーザー名のホバー・タップ可能状態の装飾 */
-.clickable-user {
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-.clickable-user:hover {
-  color: var(--primary);
-}
 
 
 /* --- ヘッダー領域 --- */
