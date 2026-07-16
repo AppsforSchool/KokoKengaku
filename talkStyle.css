@@ -342,7 +342,7 @@ a {
   padding: 15px 0;
 }
 
-/* プロフィール画像・アイコンがある場合のスタイル（今の雰囲気に合わせた丸枠） */
+/* プロフィール画像・アイコン（任意） */
 .profile-avatar {
   width: 80px;
   height: 80px;
@@ -390,40 +390,43 @@ a {
   margin-bottom: 0.4rem;
 }
 
-#profile-text {
+/* 通常時の表示 ＆ 編集時の入力欄（共通のベースデザイン） */
+#profile-text,
+#profile-text-edit {
+  font-family: "BIZ UDGothic", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   width: 100%;
-  min-height: 100px;
+  min-height: 120px; /* 少し余裕を持たせています */
   padding: 0.8rem;
-  background-color: #f9f9f9;
-  border: 2px solid #ddd; /* 入力欄と同じ太さに合わせて統一感を出しています */
   border-radius: 8px;
-  text-align: left;
-  white-space: pre-wrap;
   word-break: break-all;
   margin-bottom: 1.2rem;
+  box-sizing: border-box;
 }
 
-/* プロフィール編集時のテキストエリア（input等とトンマナを統一） */
-#profile-textarea {
-  font-family: "BIZ UDGothic", sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  width: 100%;
-  height: 100%;
-  padding: 0.8rem;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  resize: vertical;
-  margin-bottom: 1.2rem;
+/* 通常表示のとき（枠線を薄く、背景を優しく） */
+#profile-text {
+  background-color: #f9f9f9;
+  border: 1.5px solid #eee;
+  text-align: left;
+  white-space: pre-wrap;
 }
-#profile-textarea:hover {
+
+/* 編集状態のとき（実体はこれにまるごと差し替える） */
+#profile-text-edit {
+  background-color: #fff; /* 入力中は白背景にして「書ける感」を出す */
+  border: 2px solid #ddd;
+  text-align: left;
+  line-height: 1.6;
+  resize: vertical; /* ユーザーが手動で縦に伸ばせるように */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+}
+#profile-text-edit:hover {
   border-color: #999;
 }
-#profile-textarea:focus {
+#profile-text-edit:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
   outline: none;
