@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ja">
   
 <head>
@@ -24,7 +25,7 @@
 </head>
   
 <body>
-  <div id="loading-overlay" class="hidde">
+  <div id="loading-overlay" class="hidden"> <!-- class="hidde" から修正 -->
     <h1>loading...</h1>
     <p>システムの読み込みに時間がかかる場合があります｡</p>
   </div>
@@ -82,12 +83,17 @@
       <div id="profile-area">
         <!-- 名前表示/入力エリア -->
         <div id="profile-name-container">
+          <!-- 通常表示用 -->
           <p id="profile-name">取得中...</p>
+          <!-- ★【追加】編集用インプット（JSの profileNameInput に対応） -->
+          <input id="profile-name-input" class="hidden" type="text" placeholder="ユーザーネーム">
         </div>
         <p class="profile-label">ステータスメッセージ</p>
         <!-- ステータスメッセージ表示/入力エリア -->
+        <!-- 通常表示用 -->
         <div id="profile-text">取得中...</div>
-        <textarea id="profile-text-edit" class="hidden"></textarea>
+        <!-- 編集用 -->
+        <textarea id="profile-text-edit" class="hidden" placeholder="自己紹介を入力してください"></textarea>
         <!-- プロフィール編集・保存ボタン -->
         <button id="profile-edit-button" class="hidden">プロフィールを編集</button>
       </div>
@@ -116,12 +122,12 @@
         <p>ID: <strong id="drawerUserId">取得中...</strong><span></span></p>
         <p>ユーザーネーム: <strong id="drawerUsername">取得中...</strong></p>
         
-        <!-- プロフィール直接編集ボタンを追加 -->
+        <!-- プロフィール直接編集ボタン -->
         <button id="drawer-edit-profile-button" class="normal-button" style="margin-bottom: 1rem;">プロフィールを編集</button>
         <button id="logout-button" class="logout-button normal-button">ログアウト</button>
       </div>
     </div>
-</div>
+  </div> <!-- ★【修正】閉じタグの漏れを補完しました -->
   
   
   <header id="app-header">
@@ -131,7 +137,6 @@
     </div>
     
     <div id="user-data">
-     <!--<p id="header-username">取得中...</p>-->
       <button id="setting-button">アカウント情報</button>
     </div>
   </header>
@@ -146,15 +151,8 @@
         <p id="member-button">メンバー</p>
       </div>
       <p id="talk-loading" class="hidden">loading...</p>
-      <div id="talk-area" class="hidde selection">
+      <div id="talk-area" class="hidden selection"> <!-- class="hidde" から修正 -->
         <p>loading...</p>
-        <!--
-<div class="message">
-          <p class="message-user"><span>a</span> <span>2026/07/20 19:54</span>  <span class="message-read">既読:<span>3</span>人</span></p>
-          <p class="message-text">BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA BAAAAAAAAA</p>
-          
-        </div>
-<!---->
       </div>
 
       <div id="message-add-area">
@@ -165,6 +163,6 @@
     </div>
   </main>
   
-  
   <script type="module" src="talkScript.js"></script>
+</body> <!-- ★【修正】bodyの閉じタグを追加 -->
 </html>
