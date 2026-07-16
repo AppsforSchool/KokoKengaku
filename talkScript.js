@@ -331,7 +331,7 @@ async function getAllTalkData(talkId) {
           messageUser.appendChild(senderNameSpan);
           messageUser.appendChild(displayTimeSpan);
           messageUser.appendChild(readSpan);
-          if (meIsAdmin) {
+          if (meIsAdmin || messageData.userId === myUserId) {
             messageUser.appendChild(document.createTextNode(" "));
             messageUser.appendChild(editSpan);
           }
