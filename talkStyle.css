@@ -453,6 +453,9 @@ a {
   box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
   outline: none;
 }
+#profile-text-edit.hidden {
+  display: none;
+}
 
 #profile-edit-button {
   font-family: "BIZ UDGothic", sans-serif;
