@@ -80,11 +80,16 @@
         <span id="profile-modal-close" class="close-button">&times;</span>
       </div>
       <div id="profile-area">
-        <p id="profile-name">取得中...</p>
+        <!-- 名前表示/入力エリア -->
+        <div id="profile-name-container">
+          <p id="profile-name">取得中...</p>
+        </div>
         <p class="profile-label">ステータスメッセージ</p>
+        <!-- ステータスメッセージ表示/入力エリア -->
         <div id="profile-text">取得中...</div>
+        <!-- プロフィール編集・保存ボタン -->
+        <button id="profile-edit-button" class="hidden">プロフィールを編集</button>
       </div>
-      <button id="profile-edit-button" class="hidden">プロフィールを編集</button>
     </div>
   </div>
   
@@ -108,15 +113,11 @@
       <div class="drawer-section">
         <p class="title">現在のユーザー</p>
         <p>ID: <strong id="drawerUserId">取得中...</strong><span></span></p>
+        <p>ユーザーネーム: <strong id="drawerUsername">取得中...</strong></p>
         
+        <!-- プロフィール直接編集ボタンを追加 -->
+        <button id="drawer-edit-profile-button" class="normal-button" style="margin-bottom: 10px; background-color: #4CAF50; color: white;">プロフィールを編集</button>
         <button id="logout-button" class="logout-button normal-button">ログアウト</button>
-      </div>
-      <div class="drawer-section">
-        <p class="title">ユーザーネーム</p>
-        <p>現在の名前: <strong id="drawerUsername">取得中...</strong></p>
-        <input type="text" id="newUsernameInput" placeholder="新しい名前">
-        <button id="changeUsernameButton" class="normal-button" disabled="true">名前を変更</button>
-        <p id="username-message"></p>
       </div>
     </div>
 </div>
@@ -162,7 +163,6 @@
       
     </div>
   </main>
-  
   
   
   <script type="module" src="talkScript.js"></script>
