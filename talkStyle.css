@@ -386,6 +386,24 @@ a {
   word-break: break-all;
 }
 
+#profile-edit-button {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  box-sizing: border-box;
+  background-color: var(--primary);
+  color: #fff; 
+  border: none;
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
+  transition: all 0.3s ease;
+}
 
 
 /* --- ヘッダー領域 --- */
