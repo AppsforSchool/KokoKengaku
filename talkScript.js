@@ -343,7 +343,19 @@ async function getAllTalkData(talkId) {
           messageText.appendChild(safeContent);
           message.appendChild(messageText);
 
-          newTalk.appendChild(message);
+          const isDisplay = true;
+
+          if (!messageData.isDisplay) {
+            isDisplay = false;
+          }
+
+          if (isDisplay) {
+            newTalk.appendChild(message);
+          }
+          else if (meIsAdmin) {
+            messageText.classList.add("deleted");
+            newTalk.appendChild(message);
+          }
         }
         talkArea.innerHTML = "";
         talkArea.appendChild(newTalk);
