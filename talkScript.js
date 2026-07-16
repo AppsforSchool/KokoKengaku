@@ -396,6 +396,14 @@ function sanitizeHtmlToOnlyLinks(htmlString) {
         resultElement = document.createElement('span');
         resultElement.classList.add('main-color');
       }
+      else if (tagName === 'SMALL') {
+        resultElement = document.createElement('span');
+        resultElement.classList.add('small');
+      }
+      else if (tagName === 'EMOJI') {
+        resultElement = document.createElement('span');
+        resultElement.classList.add('emoji');
+      }
 
       if (resultElement) {
         // 許可されたタグの場合：子ノードを再帰的に処理して自身に追加する
