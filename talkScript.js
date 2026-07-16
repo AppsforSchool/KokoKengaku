@@ -707,7 +707,7 @@ let profileModal;
 let profileModalClose;
 let profileName;
 let profileText;
-
+let profileTextEdit;
 // --- 追加：プロフィールの編集用変数 ---
 let profileEditButton;
 let isProfileEditing = false; // 編集モード中かどうかのフラグ
@@ -719,6 +719,7 @@ document.addEventListener("DOMContentLoaded", () => {
   profileModalClose = document.getElementById("profile-modal-close");
   profileName = document.getElementById("profile-name");
   profileText = document.getElementById("profile-text");
+  profileTextEdit = document.getElementById('profile-text-edit');
   profileEditButton = document.getElementById("profile-edit-button");
 
   // 閉じるボタンのイベント
@@ -764,9 +765,10 @@ async function handleProfileEditOrSave() {
     document.getElementById("profile-name-input").value = currentName;
 
     // profile-text の中身を textarea に置き換える
-    profileText.innerHTML = `<textarea id="profile-textarea" rows="4" style="width: 100%; box-sizing: border-box; padding: 4px;"></textarea>`;
-    document.getElementById("profile-textarea").value = currentText;
-
+    // profileText.innerHTML = `<textarea id="profile-textarea" rows="4" style="width: 100%; box-sizing: border-box; padding: 4px;"></textarea>`;
+    // document.getElementById("profile-textarea").value = currentText;
+    profileText.classList.add("hidden");
+    profileTextEdit.classList.remove("hidden");
   } else {
     // 【保存処理】
     const nameInput = document.getElementById("profile-name-input");
@@ -809,7 +811,8 @@ async function handleProfileEditOrSave() {
       if (userSnapshot.exists && userSnapshot.data().isAdmin) {
         profileName.classList.add("admin");
       }
-
+      profileText.classList.remove("hidden");
+      profileTextEdit.classList.add("hidden");
       profileText.textContent = newProfileText || "ステータスメッセージはありません。";
       
       resetProfileEditMode();
