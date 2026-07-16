@@ -36,9 +36,7 @@ let accountSettingsButton;
 let drawerUserId;
 let drawerLogoutButton;
 let drawerUsername;
-let changeUsernameButton;
-let newUsernameInput;
-let usernameMessage;
+let drawerEditProfileButton; // ドロワーの「プロフィールを編集」ボタン
 
 document.addEventListener("DOMContentLoaded", () => {
   loadingOverlay = document.getElementById("loading-overlay");
@@ -52,17 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
   drawerUserId = document.getElementById("drawerUserId");
   drawerLogoutButton = document.getElementById("logout-button");
   drawerUsername = document.getElementById("drawerUsername");
-  changeUsernameButton = document.getElementById("changeUsernameButton");
-  newUsernameInput = document.getElementById("newUsernameInput");
-  usernameMessage = document.getElementById("username-message");
+  drawerEditProfileButton = document.getElementById("drawer-edit-profile-button");
 
   accountSettingsButton.addEventListener("click", openDrawer);
   drawerCloseButton.addEventListener("click", closeDrawer);
   drawerOverlay.addEventListener("click", closeDrawer);
   drawerLogoutButton.addEventListener("click", handleLogout);
 
-  changeUsernameButton.addEventListener("click", handleChangeUsername);
-  newUsernameInput.addEventListener("input", updateNameButtonState);
+  // ドロワー内の「プロフィールを編集」ボタン
+  drawerEditProfileButton.addEventListener("click", () => {
+    closeDrawer();
+    openProfileModal(myUserId, true); // 自分のプロフィールを編集モードONで開く
+  });
 });
 
 function openDrawer() {
@@ -187,53 +186,6 @@ const handleLogout = async () => {
   }
 };
 
-function updateNameButtonState() {
-  if (changeUsernameButton) {
-    usernameMessage.textContent = "";
-    const hasNewName = newUsernameInput && newUsernameInput.value.trim() !== "";
-    changeUsernameButton.disabled = !hasNewName;
-  }
-}
-
-const handleChangeUsername = async () => {
-  const newUsername = newUsernameInput.value.trim();
-  usernameMessage.textContent = "";
-
-  if (changeUsernameButton) {
-    changeUsernameButton.disabled = true;
-    changeUsernameButton.textContent = "変更中...";
-    usernameMessage.textContent = "";
-  }
-  try {
-    const user = auth.currentUser;
-    if (!user) throw new Error("ユーザーがログインしていません。");
-    const userId = user.email.split("@")[0];
-    await db.collection("users_random").doc(userId).set(
-      {
-        name: newUsername
-      },
-      { merge: true }
-    );
-
-    usernameMessage.style.color = "green";
-    usernameMessage.textContent = "ユーザーネームが変更されました！";
-    drawerUsername.textContent = newUsername;
-    newUsernameInput.value = "";
-    changeUsernameButton.disabled = true;
-
-    userCache[userId] = newUsername;
-  } catch (error) {
-    console.error("ユーザーネーム変更エラー:", error);
-    usernameMessage.style.color = "red";
-    usernameMessage.textContent = "ユーザーネームの変更に失敗しました。" + error.message;
-    changeUsernameButton.disabled = false;
-  } finally {
-    if (changeUsernameButton) {
-      changeUsernameButton.textContent = "名前を変更";
-    }
-  }
-};
-
 async function getAllTalkData(talkId) {
   const talkTitle = document.getElementById("talk-title");
   const talkArea = document.getElementById("talk-area");
@@ -317,7 +269,6 @@ async function getAllTalkData(talkId) {
           senderNameSpan.textContent = `${senderName} `;
           senderNameSpan.classList.add("clickable-user");
           senderNameSpan.style.cursor = 'pointer'; // カーソルをポインターに
-          // senderNameSpan.style.textDecoration = 'underline'; // リンク風にする場合
           
           // タップ（クリック）されたらプロフィールモーダルを開く
           senderNameSpan.addEventListener("click", () => {
@@ -351,22 +302,6 @@ async function getAllTalkData(talkId) {
           const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
           messageText.appendChild(safeContent);
           message.appendChild(messageText);
-
-          /*
-          const isDisplay = true;
-
-          if (!messageData.isDisplay) {
-            isDisplay = false;
-          }
-
-          if (isDisplay) {
-            newTalk.appendChild(message);
-          }
-          else if (meIsAdmin) {
-            messageText.classList.add("deleted");
-            newTalk.appendChild(message);
-          }
-          */
 
           newTalk.appendChild(message);
         }
@@ -557,12 +492,10 @@ function getMember(talkId) {
     if (isAdmin) memberElement.classList.add("admin");
 
     // 名前
-    // 名前
     const nameSpan = document.createElement("span");
     nameSpan.classList.add("member-name", "clickable-user");
     nameSpan.textContent = memberName;
     nameSpan.style.cursor = 'pointer'; // カーソルをポインターに
-    // nameSpan.style.textDecoration = 'underline'; // リンク風にする場合
     
     // タップ（クリック）されたらプロフィールモーダルを開く
     nameSpan.addEventListener("click", () => {
@@ -775,24 +708,136 @@ let profileModalClose;
 let profileName;
 let profileText;
 
+// --- 追加：プロフィールの編集用変数 ---
+let profileEditButton;
+let isProfileEditing = false; // 編集モード中かどうかのフラグ
+let currentProfileUserId = ""; // 現在開いているプロフィールのユーザーID
+
 document.addEventListener("DOMContentLoaded", () => {
   // 追加要素の取得
   profileModal = document.getElementById("profile-modal");
   profileModalClose = document.getElementById("profile-modal-close");
   profileName = document.getElementById("profile-name");
   profileText = document.getElementById("profile-text");
+  profileEditButton = document.getElementById("profile-edit-button");
 
   // 閉じるボタンのイベント
   profileModalClose.addEventListener("click", () => {
     profileModal.classList.add("hidden");
+    resetProfileEditMode(); // モーダルを閉じるときに編集状態をリセット
   });
+
+  // 編集・保存ボタンのクリックイベント
+  profileEditButton.addEventListener("click", handleProfileEditOrSave);
 });
 
+// 編集モードをリセットする関数
+function resetProfileEditMode() {
+  isProfileEditing = false;
+  if (profileEditButton) {
+    profileEditButton.textContent = "プロフィールを編集";
+    profileEditButton.disabled = false;
+  }
+}
+
+// 編集ボタン・保存ボタンが押された時の処理
+async function handleProfileEditOrSave() {
+  if (!isProfileEditing) {
+    // 【編集モードに入る処理】
+    isProfileEditing = true;
+    profileEditButton.textContent = "プロフィールを保存";
+
+    // 現在表示されているテキストを取得
+    let currentName = profileName.textContent;
+    let currentText = profileText.textContent;
+
+    if (currentText === "ステータスメッセージはありません。" || currentText === "取得中...") {
+      currentText = "";
+    }
+    if (currentName === "取得中..." || currentName === "不明なユーザー") {
+      currentName = "";
+    }
+
+    // 名前の親コンテナを取得して input 要素に置き換える
+    const nameContainer = document.getElementById("profile-name-container");
+    nameContainer.innerHTML = `<input type="text" id="profile-name-input" style="width: 100%; font-size: 1.2rem; font-weight: bold; padding: 4px; box-sizing: border-box;">`;
+    document.getElementById("profile-name-input").value = currentName;
+
+    // profile-text の中身を textarea に置き換える
+    profileText.innerHTML = `<textarea id="profile-textarea" rows="4" style="width: 100%; box-sizing: border-box; padding: 4px;"></textarea>`;
+    document.getElementById("profile-textarea").value = currentText;
+
+  } else {
+    // 【保存処理】
+    const nameInput = document.getElementById("profile-name-input");
+    const textarea = document.getElementById("profile-textarea");
+    if (!nameInput || !textarea) return;
+
+    const newName = nameInput.value.trim();
+    const newProfileText = textarea.value.trim();
+
+    if (!newName) {
+      alert("ユーザーネームを入力してください。");
+      return;
+    }
+
+    profileEditButton.disabled = true;
+    profileEditButton.textContent = "保存中...";
+
+    try {
+      // Firestoreの users_random コレクションを更新
+      await db.collection("users_random").doc(currentProfileUserId).set(
+        {
+          name: newName,
+          profileText: newProfileText
+        },
+        { merge: true }
+      );
+
+      // キャッシュ情報の更新
+      userCache[currentProfileUserId] = newName;
+
+      // 各UIテキストのリアルタイム更新
+      drawerUsername.textContent = newName;
+      
+      // 表示を通常のテキストに戻す
+      const nameContainer = document.getElementById("profile-name-container");
+      nameContainer.innerHTML = `<p id="profile-name">${newName}</p>`;
+      profileName = document.getElementById("profile-name"); // グローバル参照を更新
+
+      const userSnapshot = await db.collection("users_random").doc(currentProfileUserId).get();
+      if (userSnapshot.exists && userSnapshot.data().isAdmin) {
+        profileName.classList.add("admin");
+      }
+
+      profileText.textContent = newProfileText || "ステータスメッセージはありません。";
+      
+      resetProfileEditMode();
+      alert("プロフィールを保存しました。");
+    } catch (error) {
+      console.error("プロフィール保存エラー:", error);
+      alert("プロフィールの保存に失敗しました: " + error.message);
+      profileEditButton.disabled = false;
+      profileEditButton.textContent = "プロフィールを保存";
+    }
+  }
+}
+
 // プロフィールモーダルを開いてFirebaseから最新のステメ等を取得する関数
-async function openProfileModal(userId) {
-  profileName.textContent = "取得中...";
+// startEditModeがtrueの場合、ダイレクトに編集可能なテキストエリア等を開く
+async function openProfileModal(userId, startEditMode = false) {
+  currentProfileUserId = userId; // 現在開いているユーザーIDを保持
+  resetProfileEditMode();       // 編集状態を初期化
+
+  // DOMをノーマル表示のHTML構造に一回戻す
+  const nameContainer = document.getElementById("profile-name-container");
+  nameContainer.innerHTML = `<p id="profile-name">取得中...</p>`;
+  profileName = document.getElementById("profile-name"); // グローバル参照を更新
+
   profileText.textContent = "取得中...";
   profileName.classList.remove("admin"); // 一旦リセット
+  
+  profileEditButton.classList.add("hidden");
   profileModal.classList.remove("hidden");
 
   try {
@@ -810,6 +855,16 @@ async function openProfileModal(userId) {
       userAdminCache[userId] = userData.isAdmin || false;
 
       profileText.textContent = userData.profileText || "ステータスメッセージはありません。";
+
+      // ★ 自分のプロフィールだった場合のみ、編集ボタンを表示する
+      if (userId === myUserId) {
+        profileEditButton.classList.remove("hidden");
+        
+        // ドロワーから来たなどの場合は即座に編集モードに移行する
+        if (startEditMode) {
+          handleProfileEditOrSave();
+        }
+      }
     } else {
       profileName.textContent = "不明なユーザー";
       profileText.textContent = "";
