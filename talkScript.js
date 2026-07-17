@@ -882,3 +882,133 @@ async function openProfileModal(userId, startEditMode = false) {
     profileText.textContent = "プロフィールの取得に失敗しました。";
   }
 }
+
+let imageUploadModal;
+let openImageModalBtn;
+let imageModalClose;
+let modalImageInput;
+let selectImageBtn;
+let imagePreviewContainer;
+let imagePreview;
+let submitImageBtn;
+let uploadStatusText;
+let selectedImageFile = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  imageUploadModal = document.getElementById("image-upload-modal");
+  openImageModalBtn = document.getElementById("open-image-modal-button");
+  imageModalClose = document.getElementById("image-modal-close");
+  modalImageInput = document.getElementById("modal-image-input");
+  selectImageBtn = document.getElementById("select-image-button");
+  imagePreviewContainer = document.getElementById("image-preview-container");
+  imagePreview = document.getElementById("image-preview");
+  submitImageBtn = document.getElementById("submit-image-button");
+
+  // 1. モーダルを開く
+  openImageModalBtn.addEventListener("click", () => {
+    // 状態を初期化
+    selectedImageFile = null;
+    modalImageInput.value = "";
+    imagePreview.src = "";
+    imagePreviewContainer.classList.add("hidden");
+    submitImageBtn.disabled = true;
+    submitImageBtn.textContent = "画像を送信";
+    imageModalClose.disabled = false;
+    selectImageBtn.disabled = false;
+    imageUploadModal.classList.remove("hidden");
+  });
+
+  // 2. モーダルを閉じる（キャンセル）
+  imageModalClose.addEventListener("click", () => {
+    imageUploadModal.classList.add("hidden");
+  });
+
+  // 3. 「画像を選択する」ボタンが押されたら隠しinputを発火
+  selectImageBtn.addEventListener("click", () => {
+    modalImageInput.click();
+  });
+
+  // 4. ファイルが選択されたらプレビューを表示
+  modalImageInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    selectedImageFile = file;
+
+    // FileReaderで読み込んでプレビュー表示
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      imagePreview.src = event.target.result;
+      imagePreviewContainer.classList.remove("hidden");
+      submitImageBtn.disabled = false; // 送信ボタンを活性化
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // 5. 画像を送信する（アップロード & Firestore書き込み）
+  submitImageBtn.addEventListener("click", async () => {
+    if (!selectedImageFile) return;
+
+    // UIを「アップロード中」に変更して入力をロック
+    submitImageBtn.disabled = true;
+    imageModalClose.disabled = true; // 閉じるボタンを無効化
+    selectImageBtn.disabled = true;
+    submitImageBtn.textContent = "画像をアップロード中...";
+
+    try {
+      // a. Firestoreから管理者のImgBB APIキーを安全に取得
+      const keyDoc = await db.collection("system_keys").doc("imgbb").get();
+      if (!keyDoc.exists) {
+        throw new Error("APIキーの設定が見つかりません。セキュリティルールかドキュメントを確認してください。");
+      }
+      const imgbbApiKey = keyDoc.data().apiKey;
+
+      // b. ImgBBにFormDataを使ってアップロード
+      const formData = new FormData();
+      formData.append("image", selectedImageFile);
+
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error("ImgBBのアップロード処理に失敗しました。");
+      }
+
+      const imageUrl = result.data.url;
+
+      // c. 現在のトークルーム（talkId）のtalkに画像メッセージを追加
+      await db.collection("KokoKengaku").doc(talkId).collection("talk").add({
+        userId: myUserId,
+        message: "", // テキストは空にする
+        imageUrl: imageUrl,
+        readBy: [],
+        time: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // ルーム一覧側の未読カウント・並び順のためにlastUpdatedAtも更新
+      await db.collection("KokoKengaku").doc(talkId).update({
+        lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      console.log("画像送信が完了しました！");
+
+      // d. 成功したら自動的にモーダルを閉じる
+      imageUploadModal.classList.add("hidden");
+
+    } catch (error) {
+      console.error("画像送信中にエラーが発生しました:", error);
+      alert("画像の送信に失敗しました。\n" + error.message);
+      
+      // エラー時はユーザーがやり直せるようにボタンのロックを解除
+      submitImageBtn.disabled = false;
+      submitImageBtn.textContent = "画像を送信";
+      closeImageModalBtn.disabled = false;
+      selectImageBtn.disabled = false;
+      uploadStatusText.classList.add("hidden");
+    }
+  });
+});
