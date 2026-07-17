@@ -1012,7 +1012,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // エラー時はユーザーがやり直せるようにボタンのロックを解除
       submitImageBtn.disabled = false;
       submitImageBtn.textContent = "画像を送信";
-      closeImageModalBtn.disabled = false;
+      imageModalClose.disabled = false;
       selectImageBtn.disabled = false;
       imageMessageInput.disabled = false;
     }
