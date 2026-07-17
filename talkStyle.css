@@ -36,6 +36,9 @@ a {
   border-bottom: 1.5px solid #ddd;
   margin: 1rem auto;
 }
+image {
+  width: 50%;
+}
 
 
 #loading-overlay,
