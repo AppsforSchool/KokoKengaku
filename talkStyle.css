@@ -72,6 +72,29 @@ a {
   display: none;
 }
 
+.normal-button {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  box-sizing: border-box;
+  background-color: var(--primary);
+  color: #fff; 
+  border: none;
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
+  transition: all 0.3s ease;
+}
+.normal-button:disabled {
+  background-color: #ccc;
+  border: none;
+  box-shadow: none;
+}
 
 /* --- アカウント設定ドロワー --- */
 .drawer-overlay {
@@ -166,29 +189,7 @@ a {
   margin-bottom: 0.5rem;
 }
 
-.drawer button.normal-button {
-  font-family: "BIZ UDGothic", sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 0.6rem;
-  width: 100%;
-  margin-top: 0.5rem;
-  text-align: center;
-  cursor: pointer;
-  display: block;
-  box-sizing: border-box;
-  background-color: var(--primary);
-  color: #fff; 
-  border: none;
-  border-radius: 0.4rem;
-  box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
-  transition: all 0.3s ease;
-}
-.drawer button.normal-button:disabled {
-  background-color: #ccc;
-  border: none;
-  box-shadow: none;
-}
+
 
 .drawer input {
   font-family: "BIZ UDGothic", sans-serif;
@@ -510,13 +511,17 @@ a {
   display: block;
 }
 #image-message-input {
-  background-color: #fff; /* 入力中は白背景にして「書ける感」を出す */
-  border: 2px solid #ddd;
-  text-align: left;
-  line-height: 1.6;
-  /* resize: vertical; /* ユーザーが手動で縦に伸ばせるように */
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 1.0rem;
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  display: block;
+  
+  width: 100%;
+  margin: 10px 0;
 }
 #image-message-input:hover {
   border-color: #999;
