@@ -716,7 +716,7 @@ a {
   height: auto;
   border-radius: 8px;
   border: 2px solid #eee;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.5rem;
 }
 .message .message-image:last-child {
   margin-bottom: 0;
