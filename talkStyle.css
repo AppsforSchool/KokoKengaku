@@ -718,9 +718,7 @@ a {
   border: 2px solid #eee;
   margin-bottom: 0.5rem;
 }
-.message .message-image:last-child {
-  margin-bottom: 0;
-}
+
 .message .message-text {
   font-size: 1.1rem;
   font-weight: bold;
