@@ -266,7 +266,7 @@ async function getAllTalkData(talkId) {
           });
 
           const senderNameSpan = document.createElement("span");
-          senderNameSpan.textContent = `${senderName} `;
+          senderNameSpan.textContent = `${senderName}`;
           senderNameSpan.classList.add("clickable-user");
           senderNameSpan.style.cursor = 'pointer'; // カーソルをポインターに
           
@@ -289,6 +289,7 @@ async function getAllTalkData(talkId) {
           });
           
           messageUser.appendChild(senderNameSpan);
+          messageUser.appendChild(document.createTextNode(" "));
           messageUser.appendChild(displayTimeSpan);
           messageUser.appendChild(readSpan);
           if (meIsAdmin || messageData.userId === myUserId) {
