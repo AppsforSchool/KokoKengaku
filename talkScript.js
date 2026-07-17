@@ -298,16 +298,15 @@ async function getAllTalkData(talkId) {
           message.appendChild(messageUser);
 
           if (messageData.imageUrl) {
-            const messageImage = document.createElement("img");
-            messageImage.classList.add("message-image");
-            messageImage.src = messageData.imageUrl;
-            message.appendChild(messageImage);
+            const img = document.createElement("img");
+            img.src = messageData.imageUrl;
+            img.alt = "送信された画像";
+            img.classList.add("message-image");
+            messageText.appendChild(img);
           }
-          
-          const messageText = document.createElement("p");
-          messageText.classList.add("message-text");
           const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
           messageText.appendChild(safeContent);
+
           message.appendChild(messageText);
 
           newTalk.appendChild(message);
