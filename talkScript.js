@@ -300,7 +300,7 @@ async function getAllTalkData(talkId) {
           if (messageData.imageUrl) {
             const messageImage = document.createElement("img");
             messageImage.classList.add("message-image");
-            messageImage.src = massageData.imageUrl;
+            messageImage.src = messageData.imageUrl;
             message.appendChild(messageImage);
           }
           
