@@ -297,6 +297,13 @@ async function getAllTalkData(talkId) {
           }
           message.appendChild(messageUser);
 
+          if (messageData.imageUrl) {
+            const messageImage = document.createElement("img");
+            messageImage.classList.add("message-image");
+            messageImage.src = massageData.imageUrl;
+            message.appendChild(messageImage);
+          }
+          
           const messageText = document.createElement("p");
           messageText.classList.add("message-text");
           const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
