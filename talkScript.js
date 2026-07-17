@@ -315,6 +315,7 @@ async function getAllTalkData(talkId) {
             messageData.choices.forEach(choice => {
               const button = document.createElement("button");
               button.textContent = choice;
+              div.appendChild(button);
             });
             messageText.appendChild(div);
           }
