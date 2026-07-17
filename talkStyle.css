@@ -36,9 +36,6 @@ a {
   border-bottom: 1.5px solid #ddd;
   margin: 1rem auto;
 }
-img {
-  width: 50%;
-}
 
 
 #loading-overlay,
@@ -491,6 +488,45 @@ img {
   display: none;
 }
 
+/* --- 画像送信モーダル専用スタイル --- */
+#image-upload-modal .normal-button {
+  margin-top: 0.8rem;
+}
+.image-preview-container {
+  max-width: 100%;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 2px solid #eee;
+  margin-top: 1rem;
+}
+.image-preview-container.hidden {
+  display: none;
+}
+.image-preview-container img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+#image-message-input {
+  background-color: #fff; /* 入力中は白背景にして「書ける感」を出す */
+  border: 2px solid #ddd;
+  text-align: left;
+  line-height: 1.6;
+  /* resize: vertical; /* ユーザーが手動で縦に伸ばせるように */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+}
+#image-message-input:hover {
+  border-color: #999;
+}
+#image-message-input:active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.25);
+  outline: none;
+}
+
 
 /* --- ヘッダー領域 --- */
 #app-header {
@@ -668,8 +704,14 @@ img {
   color: #808080;
 }
 .message .message-image {
-  width: 50%;
-  margin-bottom: 10px;
+  display: block;
+  max-width: min(100%, 320px);
+  max-height: 320px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid #eee;
+  margin-bottom: 0.2rem;
 }
 .message .message-image:last-child {
   margin-bottom: 0;
@@ -699,6 +741,24 @@ img {
 /* --- メッセージ送信エリア --- */
 #message-add-area {
   display: flex;
+  gap: 8px;
+}
+#open-image-modal-button {
+  font-family: "BIZ UDGothic", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.6rem;
+  background-color: #fff;
+  color: var(--primary);
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+#open-image-modal-button:hover {
+  border-color: var(--primary);
+  background-color: #f5fafd;
 }
 #message-input {
   font-family: "BIZ UDGothic", sans-serif;
@@ -706,7 +766,6 @@ img {
   font-size: 1.0rem;
   width: 90%;
   padding: 0.5rem;
-  margin: 0 10px 0 0;
   border: 2px solid #ccc;
   border-radius: 6px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
