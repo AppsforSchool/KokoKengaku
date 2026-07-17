@@ -108,6 +108,25 @@
       <img src="qrcode.png" alt="QR Code">
     </div>
   </div>
+
+  <div id="image-upload-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="title">画像を送信</p>
+        <span id="image-modal-close" class="close-button">&times;</span>
+      </div>
+
+      <input type="file" id="modal-image-input" accept="image/*" class="visually-hidden-input" />
+      <button id="select-image-button" class="normal-button">画像を選択する</button>
+
+      <div id="image-preview-container" class="image-preview-container hidden">
+        <img id="image-preview" src="" alt="プレビュー">
+      </div>
+      <textarea id="image-message-input" rows="5"></textarea>
+      <!--<p id="upload-status-text" class="hidden">アップロード中...</p>-->
+      <button id="submit-image-button" class="normal-button" disabled>画像を送信</button>
+    </div>
+  </div>
   
   <div id="drawerOverlay" class="drawer-overlay"></div>
   <div id="accountSettingsDrawer" class="drawer">
@@ -155,6 +174,7 @@
       </div>
 
       <div id="message-add-area">
+        <button id="open-image-modal-button">画像</button>
         <textarea id="message-input" rows="5"></textarea>
         <button id="message-add-button" disabled>送信</button>
       </div>
