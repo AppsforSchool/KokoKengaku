@@ -297,6 +297,9 @@ async function getAllTalkData(talkId) {
           }
           message.appendChild(messageUser);
 
+          const messageText = document.createElement("p");
+          messageText.classList.add("message-text");
+          
           if (messageData.imageUrl) {
             const img = document.createElement("img");
             img.src = messageData.imageUrl;
@@ -889,8 +892,8 @@ let modalImageInput;
 let selectImageBtn;
 let imagePreviewContainer;
 let imagePreview;
+let imageMessageInput;
 let submitImageBtn;
-let uploadStatusText;
 let selectedImageFile = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -901,6 +904,7 @@ document.addEventListener("DOMContentLoaded", () => {
   selectImageBtn = document.getElementById("select-image-button");
   imagePreviewContainer = document.getElementById("image-preview-container");
   imagePreview = document.getElementById("image-preview");
+  imageMessageInput = document.getElementById("image-message-input");
   submitImageBtn = document.getElementById("submit-image-button");
 
   // 1. モーダルを開く
@@ -914,7 +918,9 @@ document.addEventListener("DOMContentLoaded", () => {
     submitImageBtn.textContent = "画像を送信";
     imageModalClose.disabled = false;
     selectImageBtn.disabled = false;
+    imageMessageInput.disabled = false;
     imageUploadModal.classList.remove("hidden");
+    
   });
 
   // 2. モーダルを閉じる（キャンセル）
@@ -953,6 +959,7 @@ document.addEventListener("DOMContentLoaded", () => {
     imageModalClose.disabled = true; // 閉じるボタンを無効化
     selectImageBtn.disabled = true;
     submitImageBtn.textContent = "画像をアップロード中...";
+    imageMessageInput.disabled = true;
 
     try {
       // a. Firestoreから管理者のImgBB APIキーを安全に取得
@@ -982,7 +989,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // c. 現在のトークルーム（talkId）のtalkに画像メッセージを追加
       await db.collection("KokoKengaku").doc(talkId).collection("talk").add({
         userId: myUserId,
-        message: "", // テキストは空にする
+        message: imageMessageInput.value,
         imageUrl: imageUrl,
         readBy: [],
         time: firebase.firestore.FieldValue.serverTimestamp()
@@ -997,7 +1004,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // d. 成功したら自動的にモーダルを閉じる
       imageUploadModal.classList.add("hidden");
-
+      imageMessageInput.value = "";
     } catch (error) {
       console.error("画像送信中にエラーが発生しました:", error);
       alert("画像の送信に失敗しました。\n" + error.message);
@@ -1007,7 +1014,7 @@ document.addEventListener("DOMContentLoaded", () => {
       submitImageBtn.textContent = "画像を送信";
       closeImageModalBtn.disabled = false;
       selectImageBtn.disabled = false;
-      uploadStatusText.classList.add("hidden");
+      imageMessageInput.disabled = false;
     }
   });
 });
