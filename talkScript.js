@@ -309,6 +309,15 @@ async function getAllTalkData(talkId) {
           }
           const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
           messageText.appendChild(safeContent);
+          if (messageData.choices) {
+            const div = document.createElement("div");
+            div.classList.add("message-choices");
+            messageData.choices.forEach(choice => {
+              const button = document.createElement("button");
+              button.textContent = choice;
+            });
+            messageText.appendChild(div);
+          }
 
           message.appendChild(messageText);
 
