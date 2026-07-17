@@ -28,7 +28,7 @@ a {
   color: var(--primary);
 }
 .hidden {
-  display: none;
+  display: none !important;
 }
 .split-line {
   display: flex;
