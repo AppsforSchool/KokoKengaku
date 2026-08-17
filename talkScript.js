@@ -310,15 +310,9 @@ async function getAllTalkData(talkId) {
           }
           const safeContent = sanitizeHtmlToOnlyLinks(messageData.message);
           messageText.appendChild(safeContent);
-          if (messageData.choices) {
-            const div = document.createElement("div");
-            div.classList.add("message-choices");
-            messageData.choices.forEach(choice => {
-              const button = document.createElement("button");
-              button.textContent = choice;
-              div.appendChild(button);
-            });
-            messageText.appendChild(div);
+          if (Array.isArray(messageData.choices) && messageData.choices.length > 0) {
+            const pollWidget = buildPollWidget(talkDoc.id, messageData.choices, messageData.answer || {});
+            messageText.appendChild(pollWidget);
           }
 
           message.appendChild(messageText);
@@ -1029,3 +1023,309 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// ================================
+// ★ アンケート機能
+// ================================
+const POLL_MIN_CHOICES = 2;
+const POLL_MAX_CHOICES = 10;
+
+let pollCreateModal;
+let pollCreateModalClose;
+let openPollModalBtn;
+let pollQuestionInput;
+let pollChoicesList;
+let pollAddChoiceButton;
+let pollSubmitButton;
+
+document.addEventListener("DOMContentLoaded", () => {
+  pollCreateModal = document.getElementById("poll-create-modal");
+  pollCreateModalClose = document.getElementById("poll-create-modal-close");
+  openPollModalBtn = document.getElementById("open-poll-modal-button");
+  pollQuestionInput = document.getElementById("poll-question-input");
+  pollChoicesList = document.getElementById("poll-choices-list");
+  pollAddChoiceButton = document.getElementById("poll-add-choice-button");
+  pollSubmitButton = document.getElementById("poll-submit-button");
+
+  openPollModalBtn.addEventListener("click", () => {
+    resetPollCreateForm();
+    pollCreateModal.classList.remove("hidden");
+  });
+
+  pollCreateModalClose.addEventListener("click", () => {
+    pollCreateModal.classList.add("hidden");
+  });
+
+  pollQuestionInput.addEventListener("input", updatePollSubmitState);
+
+  pollAddChoiceButton.addEventListener("click", () => {
+    addPollChoiceRow();
+  });
+
+  pollSubmitButton.addEventListener("click", submitPoll);
+});
+
+// ★ 選択肢の入力欄を1行追加する
+function addPollChoiceRow(prefillValue) {
+  if (pollChoicesList.children.length >= POLL_MAX_CHOICES) return;
+
+  const row = document.createElement("div");
+  row.classList.add("poll-choice-row");
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.classList.add("poll-choice-input");
+  input.maxLength = 100;
+  input.value = prefillValue || "";
+  input.addEventListener("input", updatePollSubmitState);
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.classList.add("poll-choice-remove");
+  removeBtn.textContent = "×";
+  removeBtn.setAttribute("aria-label", "選択肢を削除");
+  removeBtn.addEventListener("click", () => {
+    if (pollChoicesList.children.length <= POLL_MIN_CHOICES) return;
+    row.remove();
+    renumberPollChoicePlaceholders();
+    updatePollAddButtonState();
+    updatePollRemoveButtonsVisibility();
+    updatePollSubmitState();
+  });
+
+  row.appendChild(input);
+  row.appendChild(removeBtn);
+  pollChoicesList.appendChild(row);
+
+  renumberPollChoicePlaceholders();
+  updatePollAddButtonState();
+  updatePollRemoveButtonsVisibility();
+}
+
+// ★ 選択肢のプレースホルダー（「選択肢 1」など）を振り直す
+function renumberPollChoicePlaceholders() {
+  const inputs = pollChoicesList.querySelectorAll(".poll-choice-input");
+  inputs.forEach((input, index) => {
+    input.placeholder = `選択肢 ${index + 1}`;
+  });
+}
+
+// ★ 最小選択肢数までは削除ボタンを隠す
+function updatePollRemoveButtonsVisibility() {
+  const canRemove = pollChoicesList.children.length > POLL_MIN_CHOICES;
+  pollChoicesList.querySelectorAll(".poll-choice-remove").forEach((btn) => {
+    btn.classList.toggle("hidden", !canRemove);
+  });
+}
+
+// ★ 最大数に達したら追加ボタンを無効化
+function updatePollAddButtonState() {
+  pollAddChoiceButton.disabled = pollChoicesList.children.length >= POLL_MAX_CHOICES;
+}
+
+// ★ 質問文が入力され、選択肢が2つ以上埋まっていれば送信ボタンを活性化
+function updatePollSubmitState() {
+  const hasQuestion = pollQuestionInput.value.trim() !== "";
+  const filledChoices = Array.from(pollChoicesList.querySelectorAll(".poll-choice-input"))
+    .filter((input) => input.value.trim() !== "").length;
+  pollSubmitButton.disabled = !(hasQuestion && filledChoices >= POLL_MIN_CHOICES);
+}
+
+// ★ フォームを初期状態（質問欄クリア・選択肢2行）にリセットする
+function resetPollCreateForm() {
+  pollQuestionInput.value = "";
+  pollChoicesList.innerHTML = "";
+  for (let i = 0; i < POLL_MIN_CHOICES; i++) {
+    addPollChoiceRow();
+  }
+  updatePollSubmitState();
+}
+
+// ★ アンケートを送信する
+async function submitPoll() {
+  const question = pollQuestionInput.value.trim();
+  const choices = Array.from(pollChoicesList.querySelectorAll(".poll-choice-input"))
+    .map((input) => input.value.trim())
+    .filter((value) => value !== "")
+    .slice(0, POLL_MAX_CHOICES);
+
+  if (!question || choices.length < POLL_MIN_CHOICES) return;
+
+  pollSubmitButton.disabled = true;
+  pollSubmitButton.textContent = "送信中...";
+
+  try {
+    await db.collection("KokoKengaku").doc(talkId).collection("talk").add({
+      userId: myUserId,
+      message: question,
+      choices: choices,
+      answer: {},
+      readBy: [],
+      time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await db.collection("KokoKengaku").doc(talkId).update({
+      lastUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    pollCreateModal.classList.add("hidden");
+    resetPollCreateForm();
+  } catch (error) {
+    console.error("アンケート送信中にエラーが発生しました:", error);
+    alert("アンケートの送信に失敗しました。\n" + error.message);
+  } finally {
+    pollSubmitButton.textContent = "アンケートを送信";
+    updatePollSubmitState();
+  }
+}
+
+// ★ メッセージ内に表示するアンケートウィジェットを組み立てる
+function buildPollWidget(messageDocId, choices, answerMap) {
+  const widget = document.createElement("div");
+  widget.classList.add("poll-widget");
+
+  const scroll = document.createElement("div");
+  scroll.classList.add("poll-choices-scroll");
+
+  const hasMyAnswer = Object.prototype.hasOwnProperty.call(answerMap, myUserId);
+  const myAnswerIndex = hasMyAnswer ? answerMap[myUserId] : null;
+  const radioGroupName = `poll-${messageDocId}`;
+
+  const answerButton = document.createElement("button");
+  answerButton.type = "button";
+  answerButton.classList.add("poll-answer-button");
+  answerButton.textContent = hasMyAnswer ? "再回答する" : "答える";
+  answerButton.disabled = true;
+
+  choices.forEach((choiceLabel, index) => {
+    const count = Object.values(answerMap).filter((v) => v === index).length;
+
+    const optionLabel = document.createElement("label");
+    optionLabel.classList.add("poll-choice-option");
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = radioGroupName;
+    radio.value = String(index);
+    if (myAnswerIndex === index) radio.checked = true;
+    radio.addEventListener("change", () => {
+      answerButton.disabled = (index === myAnswerIndex);
+    });
+
+    const labelSpan = document.createElement("span");
+    labelSpan.classList.add("poll-choice-label");
+    labelSpan.textContent = choiceLabel;
+
+    const countSpan = document.createElement("span");
+    countSpan.classList.add("poll-choice-count");
+    countSpan.textContent = `${count}人`;
+    countSpan.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openPollVotersModal(answerMap, index, choiceLabel);
+    });
+
+    optionLabel.appendChild(radio);
+    optionLabel.appendChild(labelSpan);
+    optionLabel.appendChild(countSpan);
+    scroll.appendChild(optionLabel);
+  });
+
+  widget.appendChild(scroll);
+
+  answerButton.addEventListener("click", async () => {
+    const checked = scroll.querySelector(`input[name="${radioGroupName}"]:checked`);
+    if (!checked) return;
+
+    const selectedIndex = Number(checked.value);
+    const originalText = answerButton.textContent;
+    answerButton.disabled = true;
+    answerButton.textContent = "送信中...";
+
+    try {
+      await db.collection("KokoKengaku").doc(talkId).collection("talk").doc(messageDocId).update({
+        [`answer.${myUserId}`]: selectedIndex
+      });
+    } catch (error) {
+      console.error("回答の送信に失敗しました:", error);
+      alert("回答の送信に失敗しました。\n" + error.message);
+      answerButton.disabled = false;
+      answerButton.textContent = originalText;
+    }
+    // 成功時はメッセージ一覧のリアルタイム再描画（onSnapshot）で新しい状態に置き換わる
+  });
+
+  widget.appendChild(answerButton);
+
+  return widget;
+}
+
+// ★ ある選択肢を選んだ人の一覧を表示する
+let pollVotersModal;
+let pollVotersModalClose;
+let pollVotersTitle;
+let pollVotersArea;
+
+document.addEventListener("DOMContentLoaded", () => {
+  pollVotersModal = document.getElementById("poll-voters-modal");
+  pollVotersModalClose = document.getElementById("poll-voters-modal-close");
+  pollVotersTitle = document.getElementById("poll-voters-title");
+  pollVotersArea = document.getElementById("poll-voters-area");
+
+  pollVotersModalClose.addEventListener("click", () => {
+    pollVotersModal.classList.add("hidden");
+  });
+});
+
+async function openPollVotersModal(answerMap, choiceIndex, choiceLabel) {
+  pollVotersTitle.textContent = choiceLabel ? `「${choiceLabel}」を選んだ人` : "回答した人";
+  pollVotersArea.innerHTML = "読み込み中...";
+  pollVotersModal.classList.remove("hidden");
+
+  const voterIds = Object.keys(answerMap || {}).filter((uid) => answerMap[uid] === choiceIndex);
+  const fragment = document.createDocumentFragment();
+
+  if (voterIds.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.textContent = "まだ誰も選んでいません";
+    emptyMessage.style.color = "#808080";
+    emptyMessage.style.cursor = "default";
+    fragment.appendChild(emptyMessage);
+  }
+
+  // ★ 既読モーダル（openReadByModal）と同じく、既存のユーザーキャッシュを最優先で利用する
+  for (const userId of voterIds) {
+    let name = userCache[userId];
+    let isAdmin = userAdminCache[userId];
+
+    if (!name) {
+      try {
+        const userSnapshot = await db.collection("users_random").doc(userId).get();
+        if (userSnapshot.exists) {
+          const userData = userSnapshot.data();
+          userCache[userId] = userData.name || "名前未設定";
+          userAdminCache[userId] = userData.isAdmin || false;
+        } else {
+          userCache[userId] = "不明なユーザー";
+          userAdminCache[userId] = false;
+        }
+        name = userCache[userId];
+        isAdmin = userAdminCache[userId];
+      } catch (e) {
+        console.error(e);
+        name = "不明なユーザー";
+      }
+    }
+
+    const p = document.createElement("p");
+    p.textContent = name;
+    if (isAdmin) p.classList.add("admin");
+    p.addEventListener("click", () => {
+      openProfileModal(userId);
+    });
+    fragment.appendChild(p);
+  }
+
+  pollVotersArea.innerHTML = "";
+  pollVotersArea.appendChild(fragment);
+}
